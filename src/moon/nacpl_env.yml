@@ -2,7 +2,7 @@
 # Aaron Curtis
 # 2019-10-15
 
-name: NAC_pl_env_py3
+name: nacpl_env
 channels:
   - defaults
   - conda-forge

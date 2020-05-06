@@ -35,9 +35,9 @@ ENV PATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/bin:$PATH
 ENV PYTHONPATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/libexec:$PYTHONPATH
 
 # Set up environment with GDAL etc
-COPY NAC_pl_env.yml /nacpl/
+COPY nacpl_env.yml /nacpl/
 RUN conda env create -f /nacpl/nacpl_env.yml
-RUN echo "source activate NAC_pl_env_py3" > ~/.bashrc
+RUN echo "source activate nacpl_env" > ~/.bashrc
 ENV PATH /opt/conda/envs/env/bin:$PATH
 
 # Install Orfeo Toolbox (OTB) for ortho mosaics
