@@ -1,0 +1,6 @@
+Group = Mapping
+  ProjectionName  = Equirectangular
+  CenterLongitude = 180.0
+  CenterLatitude  = 0.0
+End_Group
+End

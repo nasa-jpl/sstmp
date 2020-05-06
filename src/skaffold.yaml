@@ -1,0 +1,23 @@
+# Skaffold to set up NAC pipeline argo workflow
+
+apiVersion: skaffold/v2alpha2
+kind: Config
+metadata:
+  name: skaffold
+build:
+  artifacts:
+  - image: lmmp-local/lmmp-container
+  tagPolicy:
+    envTemplate:
+      template: "{{.IMAGE_NAME}}:latest"
+deploy:
+  kubectl:
+    manifests:
+    - k8s-argo.yaml
+portForward:
+  - resourceType: Service
+    resourceName: argo-server
+    address: 0.0.0.0
+    namespace: argo
+    port: 32019
+    localPort: 2746
