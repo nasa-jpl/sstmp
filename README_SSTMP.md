@@ -11,18 +11,18 @@
 SSTMP creates a high-resolution lunar DEM and orthoimage mosaic of Earth's moon for a requested area. Given a bounding box, it will select, fetch, injest, stereo reconstruct, and merge raw imagery from the Lunar Reconnaissance Orbiter's (LRO) Narrow Angle Camera (NAC) to make your mosaic. It can be configured to use any number of real or virtual computers for processing. NAC Mosaic Pipeline uses laser altimeter data from LRO's Lunar Orbiter Laser Altimeter (LOLA) for alignment before merging the mosaics.
 
 SSTMP includes:
- - An Argo workflow that supervises all of the processing (NAC_pl_workflow.yaml)
+ - An Argo workflow that supervises all of the processing (nacpl_workflow_basic.yaml)
  - A Dockerfile defining a container which can do any of the processing steps (Dockerfile)
  - A python package with scripts needed for processing (nacpl/)
- - A conda environment needed for processing (NAC_pl_env.yml)
+ - A conda environment needed for processing (nacpl_env.yml)
  - A Skaffold configuration for setting everything up (skaffold.yaml)
  
 Development goals of the project are:
- - Near term, SSTMP should:
+ - In the near term, SSTMP should:
    - Be easy to set up and run on any computer or cluster
    - Produce a reasonable mosaic from no user input other than requested bounding box, if sufficient data exists
    - Be flexible for cases where defaults don't result in good output
- - Medium term:
+ - In the medium term:
    - NAC Mosaic Pipeline should provide rigorous error analyses
  
 ## Requirements
@@ -39,10 +39,10 @@ Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, in
 ## Setup
 If you already have the [requirements](#requirements),
 1. Clone this repository
-1. Change to the directory containing `skaffold.yaml` : `cd moon/NACpipeline/workflow` 
-1. Install SSTMP: `skaffold run`
+1. Change to the directory containing `skaffold.yaml` : `cd src` 
+1. Install SSTMP: `skaffold run` , or if you would like to access the web UI from machines other than main node, `skaffold run --port-forward`
 
-Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP-minikube.md). 
+Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 
 <a id="creating_a_mosaic" name="creating_a_mosaic"></a>
 ## Creating a mosaic
