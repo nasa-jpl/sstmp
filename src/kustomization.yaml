@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - github.com/argoproj/argo/manifests/namespace-install/?ref=release-2.8
+patches:
+  - ports.yaml
