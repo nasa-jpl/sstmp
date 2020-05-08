@@ -1,4 +1,4 @@
-# Dockerfile for NAC Mosaic Pipeline containers
+# Dockerfile for SST Mosaic Pipeline lunar processing backend
 # Aaron Curtis, Dec 2019
 
 FROM ubuntu:18.04
