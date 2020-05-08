@@ -1,0 +1,5 @@
+/scraps/
+node_modules
+dist
+.cache
+.iml
