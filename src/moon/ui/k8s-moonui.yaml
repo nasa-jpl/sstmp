@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moonui
+spec:
+  template:
+    metadata:
+      labels:
+        app: moonui
+    spec:
+      containers:
+        - name: moonui
+          image: lmmp-local/moonui
+          imagePullPolicy: IfNotPresent
+  selector:
+    matchLabels:
+      app: moonui

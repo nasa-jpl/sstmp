@@ -8,6 +8,8 @@ build:
   artifacts:
   - image: lmmp-local/lmmp-container
     context: moon
+  - image: lmmp-local/moonui
+    context: moon/ui
   tagPolicy:
     envTemplate:
       template: "{{.IMAGE_NAME}}:latest"
