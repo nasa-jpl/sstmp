@@ -22,3 +22,8 @@ portForward:
     address: 0.0.0.0
     port: 2746
     localPort: 32019
+  - resourceType: service
+    resourceName: moonui
+    address: 0.0.0.0
+    port: 1234
+    localPort: 32020

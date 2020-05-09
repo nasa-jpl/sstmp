@@ -3,5 +3,3 @@ kind: Kustomization
 resources:
   - github.com/argoproj/argo/manifests/namespace-install/?ref=release-2.8
   - moon/ui/k8s-moonui.yaml
-patches:
-  - ports.yaml

@@ -4,5 +4,5 @@ WORKDIR /usr/src/nacpl_ui
 COPY package*.json ./
 RUN npm install
 COPY . ./
-EXPOSE 8080
+EXPOSE 1234
 CMD [ "npm", "start" ]
