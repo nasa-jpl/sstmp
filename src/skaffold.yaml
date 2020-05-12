@@ -15,6 +15,10 @@ build:
       template: "{{.IMAGE_NAME}}:latest"
 deploy:
   kustomize: {}
+  kubectl:
+    manifests:
+    - https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/baremetal/deploy.yaml
+    - ingress.yaml
 
 portForward:
   - resourceType: service
