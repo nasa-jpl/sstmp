@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - github.com/argoproj/argo/manifests/quick-start/mysql
   - moon/ui/k8s-moonui.yaml
+  - ingress.yaml

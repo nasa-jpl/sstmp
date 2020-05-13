@@ -3,6 +3,14 @@ kind: Ingress
 metadata:
   name: sstmp-ingress
 spec:
-  backend:
-    serviceName: argo-server
-    servicePort: 80
+  rules:
+    - http:
+        paths:
+          - path: /moon
+            backend:
+              serviceName: moonui
+              servicePort: 1234
+          - path: /
+            backend:
+              serviceName: argo-server
+              servicePort: 2746
