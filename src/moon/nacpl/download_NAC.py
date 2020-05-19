@@ -5,6 +5,10 @@ from urllib import request
 import json
 import wget
 
+# Ignore SSL certificate errors, necessary because docker Ubuntu 18.04 image doesn't like wustl.edu cert for some reason
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 def get_nac_url(product_id: str):
     """
     Given a NAC product id, query the Washington University in St. Louis Orbital Data Explorer APO, and return a URL
@@ -16,7 +20,9 @@ def get_nac_url(product_id: str):
     query_url = f'https://oderest.rsl.wustl.edu/live2/?query=product&PDSID={product_id}&results=f&output=json'
     resp = request.urlopen(url=query_url)
     resp = json.loads(resp.read())
-    return resp['ODEResults']['Products']['Product']['Product_files']['Product_file'][0]['URL']
+    nacurl = resp['ODEResults']['Products']['Product']['Product_files']['Product_file'][0]['URL']
+    print(nacurl)
+    return nacurl
 
 def download_NAC_image(product_id, download_dir):
     """
