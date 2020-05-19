@@ -1,0 +1,105 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: dl-ingest-nac
+  namespace: default
+spec:
+  entrypoint: dl-ingest-nac
+  templates:
+    - name: dl-ingest-nac
+      inputs:
+        parameters:
+          - name: prod-id
+            value: M1169160252LE
+      dag:
+        tasks:
+          - name: download-nac
+            template: download-nac
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
+            # output: nacimg, a downloaded .IMG NAC
+
+          - name: img2cub
+            template: img2cub
+            arguments:
+              artifacts:
+                - name: nacimg
+                  from: "{{tasks.download-nac.outputs.artifacts.nacimg}}"
+            dependencies: [download-nac]
+            # output: naccub, a Level 0 cub
+
+          - name: calibrate
+            template: calibrate
+            arguments:
+              artifacts:
+                - name: naccub
+                  from: "{{tasks.img2cub.outputs.artifacts.naccub}}"
+            dependencies: [img2cub]
+            # output: naccalcub, a Level 1 cub
+
+#----------------------
+# Low-level templates
+#----------------------
+    - name: download-nac
+      inputs:
+        parameters:
+          - name: prod-id
+
+      retryStrategy:
+        limit: 3
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          python /nacpl/download_NAC.py {{inputs.parameters.prod-id}} /tmp
+      outputs:
+        artifacts:
+          - name: nacimg
+            path: /tmp/{{inputs.parameters.prod-id}}.IMG # FIXME maybe should just keep same filename
+            archive:
+              none: {}
+
+    - name: img2cub
+      inputs:
+        artifacts:
+          - name: nacimg
+            path: /tmp/nac.IMG
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          lronac2isis from=/tmp/nac.IMG to=/tmp/nac.cub
+      outputs:
+        artifacts:
+          - name: naccub
+            path: /tmp/nac.cub
+            archive:
+              none: {}
+
+    - name: calibrate
+      inputs:
+        artifacts:
+          - name: naccub
+            path: /tmp/nac.cub
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          spiceinit from=/tmp/nac.cub
+          lronaccal from=/tmp/nac.cub to=/tmp/nac.cal.cub
+          lronacecho from=/tmp/nac.cal.cub to=/tmp/nac.cal.cub
+      outputs:
+        artifacts:
+          - name: naccalcub
+            path: /tmp/nac.cal.cub
+            archive:
+              none: {}
+
