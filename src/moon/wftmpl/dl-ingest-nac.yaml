@@ -26,6 +26,9 @@ spec:
               artifacts:
                 - name: nacimg
                   from: "{{tasks.download-nac.outputs.artifacts.nacimg}}"
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
             dependencies: [download-nac]
             # output: naccub, a Level 0 cub
 
@@ -70,17 +73,19 @@ spec:
         artifacts:
           - name: nacimg
             path: /tmp/nac.IMG
+        parameters:
+          - name: prod-id
       script:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
         command: [bash]
         source: |
           . activate nacpl_env
-          lronac2isis from=/tmp/nac.IMG to=/tmp/nac.cub
+          lronac2isis from=/tmp/nac.IMG to=/tmp/{{inputs.parameters.prod-id}}.cub
       outputs:
         artifacts:
           - name: naccub
-            path: /tmp/nac.cub
+            path: /tmp/{{inputs.parameters.prod-id}}.cub
             archive:
               none: {}
 
@@ -99,11 +104,11 @@ spec:
           . activate nacpl_env
           spiceinit from=/tmp/nac.cub web=yes
           lronaccal from=/tmp/nac.cub to=/tmp/nac.cal-noecho.cub
-          lronacecho from=/tmp/nac.cal-noecho.cub to=/tmp/nac.cal.cub
+          lronacecho from=/tmp/nac.cal-noecho.cub to=/tmp/{{inputs.parameters.prod-id}}.cal.cub
       outputs:
         artifacts:
           - name: naccalcub
-            path: /tmp/{{inputs.parameters.prod-id}}
+            path: /tmp/{{inputs.parameters.prod-id}}.cal.cub
             archive:
               none: {}
 

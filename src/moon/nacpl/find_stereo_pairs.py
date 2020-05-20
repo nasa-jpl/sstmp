@@ -526,7 +526,7 @@ def trajectory(trajectory_csv, plot=False, find_covering=False, verbose=False):
     if find_covering:
         search_poly_shapely = wkt.loads(imgs.search_poly)
         filtered_pairset.pairs, stats = geom_helpers.covering_set_search(
-            full_poly_set=filtered_pairset,
+            full_poly_set=filtered_pairset.pairs,
             search_poly=search_poly_shapely,
             plot=plot,
             verbose=False
@@ -550,7 +550,7 @@ def bounding_box(*, west, east, south, north, plot=False, find_covering=True, ve
     if find_covering:
         search_poly_shapely = wkt.loads(imgs.search_poly)
         filtered_pairset.pairs, stats = geom_helpers.covering_set_search(
-            full_poly_set=filtered_pairset,
+            full_poly_set=filtered_pairset.pairs,
             search_poly=search_poly_shapely,
             plot=plot,
             verbose=False

@@ -115,10 +115,10 @@ def covering_set_search(full_poly_set, search_poly, success_fraction=0.99,
 
         # Find the first polygon in full_poly_set containing this point and add it to selected_polys
         hit = False
-        for ind, poly_row in full_poly_set.pairs.iterrows():
-            if poly_row.geometry.contains(search_point):
+        for ind, poly_row in full_poly_set.iterrows():
+            if poly_row.footprint_geometry.contains(search_point):
                 hit = True
-                selected_poly = poly_row.geometry
+                selected_poly = poly_row.footprint_geometry
                 selected_polys = selected_polys.append(poly_row)
                 # Subtract the selected polygon from the remaining_uncovered_poly
                 remaining_uncovered_poly = remaining_uncovered_poly.difference(selected_poly)

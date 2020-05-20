@@ -1,0 +1,98 @@
+# NACpipeline Argo workflow
+# Aaron Curtis
+# Workflow for simple NAC mosaics projected onto ISIS base DEM
+
+# Process:
+#  select nacs
+#  mosrange at some point
+#  download and convert nacs
+#      spiceinit
+#      lronaccal
+#      lronacecho
+#  create a mapfile which covers all nacs
+#      mosrange
+#      cam2map
+#      map2map
+#      equalize
+#  noseam
+#
+# Solar System Treks Mosaic Pipeline NAC Stereo workflow template
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: nacpl-mono
+  namespace: default
+spec:
+  entrypoint: nac-mosaic
+  templates:
+    - name: nac-mosaic
+      inputs:
+        #FIXME get rid of these value 0s. Want to be able to submit the WorkflowTemplate
+        parameters:
+            - name: west
+              value: 0
+            - name: east
+              value: 0
+            - name: south
+              value: 0
+            - name: north
+              value: 0
+      dag:
+        tasks:
+          - name: select-nacs
+            template: select-nacs
+            arguments:
+              parameters:
+                - name: west
+                  value: "{{inputs.parameters.west}}"
+                - name: east
+                  value: "{{inputs.parameters.east}}"
+                - name: south
+                  value: "{{inputs.parameters.south}}"
+                - name: north
+                  value: "{{inputs.parameters.north}}"
+          - name: dl-ingest-nac
+            templateRef:
+              name: dl-ingest-nac
+              template: dl-ingest-nac
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{item}}"
+            withParam: "{{tasks.select-nacs.outputs.result}}"
+            continueOn:
+              failed: true
+            dependencies:
+              - select-nacs
+          - name: merge
+            template: merge
+            dependencies:
+              - dl-ingest-nac
+
+    - name: select-nacs
+      inputs:
+        parameters:
+          - name: west
+          - name: east
+          - name: south
+          - name: north
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          python /nacpl/find_nacs_mono.py    \
+            --west={{inputs.parameters.west}}   \
+            --east={{inputs.parameters.east}}   \
+            --south={{inputs.parameters.south}} \
+            --north={{inputs.parameters.north}}
+
+    - name: merge
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          mosrange
