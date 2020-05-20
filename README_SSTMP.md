@@ -40,7 +40,7 @@ Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, in
 If you already have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src` 
-1. Install SSTMP: `skaffold run && skaffold run` . The second skaffold run is necessary because Skaffold [can't control order of operations yet](https://github.com/GoogleContainerTools/skaffold/issues/3905).
+1. Install SSTMP: run `skaffold debug`  
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 

@@ -10,7 +10,6 @@ spec:
       inputs:
         parameters:
           - name: prod-id
-            value: M1169160252LE
       dag:
         tasks:
           - name: download-nac
@@ -93,9 +92,9 @@ spec:
         command: [bash]
         source: |
           . activate nacpl_env
-          spiceinit from=/tmp/nac.cub
-          lronaccal from=/tmp/nac.cub to=/tmp/nac.cal.cub
-          lronacecho from=/tmp/nac.cal.cub to=/tmp/nac.cal.cub
+          spiceinit from=/tmp/nac.cub web=yes
+          lronaccal from=/tmp/nac.cub to=/tmp/nac.cal-noecho.cub
+          lronacecho from=/tmp/nac.cal-noecho.cub to=/tmp/nac.cal.cub
       outputs:
         artifacts:
           - name: naccalcub

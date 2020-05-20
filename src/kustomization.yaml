@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - github.com/argoproj/argo/manifests/quick-start/mysql
+  - github.com/argoproj/argo/manifests/quick-start/mysql/?ref=release-2.8
   - moon/ui/k8s-moonui.yaml
   - ingress.yaml
+  - moon/wftmpl/dl-ingest-nac.yaml
