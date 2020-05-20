@@ -41,6 +41,7 @@ If you already have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src` 
 1. Install SSTMP: run `skaffold debug`  
+1. You may want to customize your artifact repository, for example to change the data storage location. Copy `/src/minio-example.yaml` , for example to `minio-yourcopy.yaml`, edit the contents and then run `kubectl --force -f minio-yourcopy.yaml`. (Future versions of SSTMP will have a more elegant way to do this.)
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 
