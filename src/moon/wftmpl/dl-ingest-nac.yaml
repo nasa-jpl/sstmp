@@ -35,6 +35,9 @@ spec:
               artifacts:
                 - name: naccub
                   from: "{{tasks.img2cub.outputs.artifacts.naccub}}"
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
             dependencies: [img2cub]
             # output: naccalcub, a Level 1 cub
 
@@ -86,6 +89,8 @@ spec:
         artifacts:
           - name: naccub
             path: /tmp/nac.cub
+        parameters:
+          - name: prod-id
       script:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
@@ -98,7 +103,7 @@ spec:
       outputs:
         artifacts:
           - name: naccalcub
-            path: /tmp/nac.cal.cub
+            path: /tmp/{{inputs.parameters.prod-id}}
             archive:
               none: {}
 
