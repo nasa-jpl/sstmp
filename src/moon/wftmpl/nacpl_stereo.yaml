@@ -1,0 +1,24 @@
+# Solar System Treks Mosaic Pipeline NAC Stereo workflow template
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: nacpl-stereo
+  namespace: default
+spec:
+  entrypoint: nac-mosaic
+  templates:
+    - name: nac-mosaic
+      inputs:
+        parameters:
+          - name: prod-id
+      dag:
+        tasks:
+          - name: dl-ingest-nac
+            templateRef:
+              name: dl-ingest-nac
+              template: dl-ingest-nac
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"

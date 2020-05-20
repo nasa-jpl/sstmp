@@ -5,3 +5,4 @@ resources:
   - moon/ui/k8s-moonui.yaml
   - ingress.yaml
   - moon/wftmpl/dl-ingest-nac.yaml
+  - moon/wftmpl/nacpl_stereo.yaml
