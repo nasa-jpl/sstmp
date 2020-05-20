@@ -6,3 +6,6 @@ resources:
   - ingress.yaml
   - moon/wftmpl/dl-ingest-nac.yaml
   - moon/wftmpl/nacpl_stereo.yaml
+
+patches:
+  - argo-configmap.yaml
