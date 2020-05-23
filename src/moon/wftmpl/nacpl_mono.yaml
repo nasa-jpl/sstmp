@@ -65,10 +65,22 @@ spec:
               failed: true
             dependencies:
               - select-nacs
-          - name: merge
-            template: merge
+          - name: mosrange
+            template: mosrange
             dependencies:
               - dl-ingest-nac
+          - name: cam2map
+            template: cam2map
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{item}}"
+              artifacts:
+                - name: mapfile
+                  from: "{{tasks.mosrange.outputs.artifacts.mapfile}}"
+            withParam: "{{tasks.select-nacs.outputs.result}}"
+            dependencies:
+              - mosrange
 
     - name: select-nacs
       inputs:
@@ -89,10 +101,53 @@ spec:
             --south={{inputs.parameters.south}} \
             --north={{inputs.parameters.north}}
 
-    - name: merge
+    - name: mosrange
+      inputs:
+        artifacts:
+          - name: naccalcubs
+            path: /tmp
+            s3:
+              bucket: my-bucket2
+              endpoint: minio:9000
+              insecure: true
+              accessKeySecret:
+                name: my-minio-cred
+                key: accesskey
+              secretKeySecret:
+                name: my-minio-cred
+                key: secretkey
+              key: /nac/
       script:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
         command: [bash]
         source: |
-          mosrange
+          . activate nacpl_env
+          echo /tmp/*.cal.cub > /tmp/mosrange.lst
+          mosrange from=/tmp/mosrange.lst to=/tmp/mos.map
+      outputs:
+        artifacts:
+          - name: mapfile
+            path: /tmp/mos.map
+            archive:
+              none: {}
+
+    - name: cam2map
+      inputs:
+        parameters:
+          - name: prod-id
+        artifacts:
+          - name: mapfile
+            path: /tmp/mos.map
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          echo test
+
+
+#          mosrange from
+
+#    - name: cam2map
