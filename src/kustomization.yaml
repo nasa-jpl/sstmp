@@ -9,3 +9,4 @@ resources:
 
 patches:
   - argo-configmap.yaml
+  - minio-config.yaml
