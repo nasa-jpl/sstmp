@@ -27,6 +27,7 @@ Development goals of the project are:
  
 ## Requirements
  - Any Kubernetes cluster. This can be minikube running on a single machine / node, a cloud service such as Amazon EKS, or your own custom cluster. [k3d](https://github.com/rancher/k3d) is recommended as a quick way to set up Kubernetes.
+ - Nginx ingress setup on your kubernetes cluster. For minikube, this means running `minikube addons enable ingress`. 
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
 
 Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, including:
@@ -40,7 +41,7 @@ Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, in
 If you already have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src` 
-1. Install SSTMP: run `skaffold debug`  
+1. Install SSTMP: run `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds; skaffold debug`  
 1. You may want to customize your artifact repository, for example to change the data storage location. Copy `/src/minio-example.yaml` , for example to `minio-yourcopy.yaml`, edit the contents and then run `kubectl --force -f minio-yourcopy.yaml`. (Future versions of SSTMP will have a more elegant way to do this.)
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
