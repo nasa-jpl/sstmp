@@ -10,6 +10,7 @@ spec:
       inputs:
         parameters:
           - name: prod-id
+            value: M1169160252LE
       dag:
         tasks:
           - name: download-nac
@@ -44,9 +45,9 @@ spec:
             dependencies: [img2cub]
             # output: naccalcub, a Level 1 cub
 
-#----------------------
-# Low-level templates
-#----------------------
+    #----------------------
+    # Low-level templates
+    #----------------------
     - name: download-nac
       inputs:
         parameters:
@@ -102,13 +103,16 @@ spec:
         command: [bash]
         source: |
           . activate nacpl_env
+          mkdir -p /mosaics/{{workflow.name}}
           spiceinit from=/tmp/nac.cub web=yes
-          lronaccal from=/tmp/nac.cub to=/tmp/nac.cal-noecho.cub
-          lronacecho from=/tmp/nac.cal-noecho.cub to=/tmp/{{inputs.parameters.prod-id}}.cal.cub
+          lronaccal from=/tmp/nac.cub to=/mosaics/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
       outputs:
         artifacts:
           - name: naccalcub
-            path: /tmp/{{inputs.parameters.prod-id}}.cal.cub
+            path: /mosaics
             archive:
               none: {}
-
+          - name: naccalcub-mos
+            path: /mosaics/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
+            archive:
+              none: {}

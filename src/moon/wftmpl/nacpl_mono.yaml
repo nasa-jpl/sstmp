@@ -1,10 +1,9 @@
-# NACpipeline Argo workflow
-# Aaron Curtis
-# Workflow for simple NAC mosaics projected onto ISIS base DEM
+# Solar System Treks Mosaic Pipeline NAC non-stereo orthomosaic workflow template w/ artifacts (as opposed to volumes)
+# Currently very wasteful of bandwidth; file manipulation limitations of using an artifact store lead to excessive
+# downloads and uploads
 
 # Process:
 #  select nacs
-#  mosrange at some point
 #  download and convert nacs
 #      spiceinit
 #      lronaccal
@@ -13,15 +12,15 @@
 #      mosrange
 #      cam2map
 #      map2map
-#      equalize
-#  noseam
+#      equalizer
+#      noseam
 #
 # Solar System Treks Mosaic Pipeline NAC Stereo workflow template
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: nacpl-mono
+  generatename: nacpl-mono-
   namespace: default
 spec:
   entrypoint: nac-mosaic
@@ -81,6 +80,14 @@ spec:
             withParam: "{{tasks.select-nacs.outputs.result}}"
             dependencies:
               - mosrange
+#          - name: equalize
+#            template: equalize
+#            dependancies:
+#              - cam2map
+#          - name: noseam
+#            template: equalize
+#            dependancies:
+#              - equalize
 
     - name: select-nacs
       inputs:
@@ -95,7 +102,7 @@ spec:
         command: [bash]
         source: |
           . activate nacpl_env
-          python /nacpl/find_nacs_mono.py    \
+          python /nacpl/find_nacs_mono.py       \
             --west={{inputs.parameters.west}}   \
             --east={{inputs.parameters.east}}   \
             --south={{inputs.parameters.south}} \
@@ -107,7 +114,7 @@ spec:
           - name: naccalcubs
             path: /tmp
             s3:
-              bucket: my-bucket2
+              bucket: my-bucket
               endpoint: minio:9000
               insecure: true
               accessKeySecret:
@@ -116,19 +123,20 @@ spec:
               secretKeySecret:
                 name: my-minio-cred
                 key: secretkey
-              key: /nac/
+              key: /nac/mosaics/{{workflow.name}}/
       script:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
         command: [bash]
         source: |
           . activate nacpl_env
+          mkdir -p /mosaics/{{workflow.name}}
           echo /tmp/*.cal.cub > /tmp/mosrange.lst
-          mosrange from=/tmp/mosrange.lst to=/tmp/mos.map
+          mosrange from=/tmp/mosrange.lst to=/mosaics/{{workflow.name}}/mos.map
       outputs:
         artifacts:
           - name: mapfile
-            path: /tmp/mos.map
+            path: /mosaics
             archive:
               none: {}
 
@@ -139,14 +147,57 @@ spec:
         artifacts:
           - name: mapfile
             path: /tmp/mos.map
+          - name: naccalcub
+            path: /tmp/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
+            s3:
+              bucket: my-bucket
+              endpoint: minio:9000
+              insecure: true
+              accessKeySecret:
+                name: my-minio-cred
+                key: accesskey
+              secretKeySecret:
+                name: my-minio-cred
+                key: secretkey
+              key: /nac/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
       script:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
         command: [bash]
         source: |
           . activate nacpl_env
-          echo test
+          cam2map                                           \
+            from=/tmp/{{inputs.parameters.prod-id}}.cal.cub \
+            to=/tmp/{{inputs.parameters.prod-id}}.map.cub   \
+            matchmap=yes                                    \
+            map=/tmp/mos.map
+      outputs:
+        artifacts:
+          - name: nacmapcub
+            path: /tmp/{{inputs.parameters.prod-id}}.map.cub
 
+#    - name: equalize
+#      inputs:
+#        artifacts:
+#          - name: nacmaps
+#            path: /tmp/
+#            s3:
+#              bucket: my-bucket2
+#              endpoint: minio:9000
+#              insecure: true
+#              accessKeySecret:
+#                name: my-minio-cred
+#                key: accesskey
+#              secretKeySecret:
+#                name: my-minio-cred
+#                key: secretkey
+#              key: /nac/
+#      script:
+#        image: lmmp-local/lmmp-container
+#        imagePullPolicy: IfNotPresent
+#        command: [bash]
+#        source: |
+#          equalizer fromlist=/tmp/mosrange.lst
 
 #          mosrange from
 
