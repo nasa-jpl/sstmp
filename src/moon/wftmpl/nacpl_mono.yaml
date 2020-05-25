@@ -82,14 +82,14 @@ spec:
             withParam: "{{tasks.select-nacs.outputs.result}}"
             dependencies:
               - mosrange
-#          - name: equalize
-#            template: equalize
-#            dependancies:
-#              - cam2map
-#          - name: noseam
-#            template: equalize
-#            dependancies:
-#              - equalize
+          - name: equalizer
+            template: equalizer
+            dependencies:
+              - cam2map
+          - name: noseam
+            template: noseam
+            dependencies:
+              - equalizer
 
     - name: select-nacs
       inputs:
@@ -193,7 +193,7 @@ spec:
             archive:
               none: {}
 
-    - name: equalize
+    - name: equalizer
       inputs:
         artifacts:
           - name: nacmaps
@@ -214,8 +214,45 @@ spec:
         imagePullPolicy: IfNotPresent
         command: [bash]
         source: |
-          ls /nac/mapfiles/{{workflow.name}}/
-#
-##          mosrange from
+          . activate nacpl_env
+          ls -1 /tmp/*.map.cub > /tmp/fromlist.lis
+          equalizer fromlist=/tmp/fromlist.lis
+          mkdir -p /equalized
+          mv /tmp/*.equ.cub /equalized/{{workflow.name}}
+      outputs:
+        artifacts:
+          - name: equalized
+            path: /equalized
+            archive:
+              none: {}
 
-#    - name: cam2map
+    - name: noseam
+      inputs:
+        artifacts:
+          - name: equalized
+            path: /tmp
+            s3:
+              bucket: my-bucket
+              endpoint: minio:9000
+              insecure: true
+              accessKeySecret:
+                name: my-minio-cred
+                key: accesskey
+              secretKeySecret:
+                name: my-minio-cred
+                key: secretkey
+              key: /nac/equalized/{{workflow.name}}/
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          echo /tmp/*.equ.cub > /tmp/fromlist.lis
+          noseam from=/tmp/fromlist.lis to=/tmp/mos.cub
+      outputs:
+        artifacts:
+          - name: mos
+            path: /tmp/mos.cub
+            archive:
+              none: {}
