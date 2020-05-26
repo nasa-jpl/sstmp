@@ -29,6 +29,7 @@ Development goals of the project are:
  - Any Kubernetes cluster. This can be minikube running on a single machine / node, a cloud service such as Amazon EKS, or your own custom cluster. [k3d](https://github.com/rancher/k3d) is recommended as a quick way to set up Kubernetes.
  - Nginx ingress setup on your kubernetes cluster. For minikube, this means running `minikube addons enable ingress`. 
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
+ - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH
 
 Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, including:
  - USGS ISIS
