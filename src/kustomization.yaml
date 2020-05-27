@@ -9,4 +9,4 @@ resources:
 
 patches:
   - argo-configmap.yaml
-  - minio-config.yaml
+  - minio-config.yaml # Can change to minio-config-hostpath.yaml if want files stored directly in host filesystem
