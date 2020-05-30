@@ -20,25 +20,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  generatename: nacpl-mono-
+  generatename: nacpl-mono-from-bb-
+  name: nacpl-mono-from-bb
   namespace: default
 spec:
   entrypoint: nac-mosaic
-  podGC:
-    strategy: OnWorkflowCompletion
+  parallelism: 10
   templates:
     - name: nac-mosaic
       inputs:
         #FIXME get rid of these value 0s. Want to be able to submit the WorkflowTemplate
         parameters:
-            - name: west
-              value: 0
-            - name: east
-              value: 0
-            - name: south
-              value: 0
-            - name: north
-              value: 0
+          - name: west
+            value: 0
+          - name: east
+            value: 0
+          - name: south
+            value: 0
+          - name: north
+            value: 0
       dag:
         tasks:
           - name: select-nacs
@@ -117,7 +117,7 @@ spec:
             path: /tmp
             s3:
               bucket: my-bucket
-              endpoint: minio:9000
+              endpoint: ***REMOVED***
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
