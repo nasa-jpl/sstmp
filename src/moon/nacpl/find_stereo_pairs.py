@@ -534,7 +534,7 @@ def trajectory(trajectory_csv, plot=False, find_covering=False, verbose=False):
     print(filtered_pairset.pairs_json())
     return filtered_pairset
 
-def bounding_box(*, west, east, south, north, plot=False, find_covering=True, verbose=False):
+def bounding_box(*, west, east, south, north, plot=False, find_covering=True, return_pairset=False, verbose=False):
     """
     Find stereo pairs that fill a given bounding box
 
@@ -556,7 +556,8 @@ def bounding_box(*, west, east, south, north, plot=False, find_covering=True, ve
             verbose=False
         )
     print(filtered_pairset.pairs_json())
-    return filtered_pairset
+    if return_pairset:
+        return filtered_pairset
 
 if __name__ == '__main__':
     import clize, json
