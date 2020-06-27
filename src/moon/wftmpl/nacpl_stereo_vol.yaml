@@ -3,8 +3,9 @@
 # Concurrency rules: Write files as temporary, then move to intended dest. Check for existing output before starting.
 
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
+  name: nac-stereo
   generateName: nac-stereo-
   namespace: default
 spec:
