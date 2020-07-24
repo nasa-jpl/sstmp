@@ -20,7 +20,6 @@ import numpy
 import urllib
 import json
 
-# TODO setup to download these if they don't exist
 lblfilepath = r'/INDEX.LBL'
 indfilepath = r'/CUMINDEX.TAB'
 

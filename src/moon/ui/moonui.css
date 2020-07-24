@@ -1,0 +1,20 @@
+body {
+    margin: 0;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#title {
+    color: #b0b0b0;
+    position: absolute;
+    bottom: 5px;
+    font-size: 17px;
+    font-family: Roboto,Montserrat, "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
+    text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
+    width: 100%;
+    text-align: center;
+}

@@ -1,3 +1,24 @@
+import 'ol/ol.css';
+import {Map, View} from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import XYZ from 'ol/source/XYZ';
+
+const map = new Map({
+    target: 'map',
+    layers: [
+        new TileLayer({
+            source: new XYZ({
+                url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
+            })
+        })
+    ],
+    view: new View({
+        center: [0, 0],
+        zoom: 0
+    })
+});
+
 window.addEventListener('load', (event) => {
     console.log('test')
     document.getElementById('sendreq').onclick = submitWorkflowFromTemplate
