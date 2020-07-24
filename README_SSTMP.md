@@ -41,9 +41,9 @@ Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, in
 ## Setup
 If you already have the [requirements](#requirements),
 1. Clone this repository
-1. Change to the directory containing `skaffold.yaml` : `cd src` 
-1. Install SSTMP: run `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds; skaffold debug`  
-1. You may want to customize your artifact repository, for example to change the data storage location. Copy `/src/minio-example.yaml` , for example to `minio-yourcopy.yaml`, edit the contents and then run `kubectl --force -f minio-yourcopy.yaml`. (Future versions of SSTMP will have a more elegant way to do this.)
+1. Change to the directory containing `skaffold.yaml` : `cd src`
+1. Configure your storage settings. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`. 
+1. Install SSTMP: run `skaffold run`
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 

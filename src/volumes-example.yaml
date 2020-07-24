@@ -1,0 +1,44 @@
+# This file controls how the Solar System Treks Mosaic Pipeline stores data.
+# Below are some examples of how you can store your data. Uncomment and / or modify one to suit your needs.
+# Once you have edited it, save it as volumes.yaml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sstmp-data
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: slow
+
+# Uncomment one of these storage types
+
+#  hostPath:
+#    type: DirectoryOrCreate
+#    path: /c/tmp
+
+#  hostPath:
+#    type: DirectoryOrCreate
+#    path: /c/path/where/you/want/data
+
+#  nfs:
+#    server: your.nfs.server.com
+#    path: '/'
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sstmp-data
+spec:
+  storageClassName: slow
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 90Gi

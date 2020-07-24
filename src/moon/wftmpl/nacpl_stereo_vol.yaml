@@ -11,10 +11,9 @@ metadata:
 spec:
   entrypoint: nac-mosaic
   volumes:
-    - name: nac-volume
-      hostPath:
-        path: /c/nacpldata4
-        type: DirectoryOrCreate
+    - name: sstmp-data
+      persistentVolumeClaim:
+        claimName: sstmp-data # This was set up in volumes.yaml
   arguments:
     parameters:
       - name: west
@@ -33,7 +32,7 @@ spec:
         image: lmmp-local/lmmp-container
         imagePullPolicy: IfNotPresent
         volumeMounts:
-          - name: nac-volume
+          - name: sstmp-data  # Should have been created in volumes.yaml
             mountPath: /data/nac
     - name: dummy-stereo-dag-template
       inputs: *right-left-inps
