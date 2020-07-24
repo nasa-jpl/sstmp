@@ -1,26 +1,48 @@
-import 'ol/ol.css';
-import {Map, View} from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
-import XYZ from 'ol/source/XYZ';
+import 'ol/ol.css'
+import {Map, View} from 'ol'
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
+import {XYZ, Vector as VectorSource} from 'ol/source'
+import {DragBox} from 'ol/interaction'
+import {defaults as defaultControls} from 'ol/control';
+import MousePosition from 'ol/control/MousePosition' 
+import {createStringXY} from 'ol/coordinate'
+
+let mosaicGoal
+const boxDrawLayer = new VectorLayer({source: new VectorSource({wrapX: false})})
+const moonBaseMap = new TileLayer({
+    source: new XYZ({
+        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
+    })
+})
+const dragBox = new DragBox()
 
 const map = new Map({
     target: 'map',
     layers: [
-        new TileLayer({
-            source: new XYZ({
-                url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
-            })
-        })
+        moonBaseMap, boxDrawLayer
     ],
     view: new View({
         center: [0, 0],
-        zoom: 0
-    })
+        zoom: 0        
+    }),
+    interactions: [
+        dragBox
+    ]
 });
 
+const mousePositionControl = new MousePosition({
+    coordinateFormat: createStringXY(4),
+    projection: 'EPSG:4326'
+})
+map.addControl(mousePositionControl)
+
+dragBox.on('boxend', (evt)=>{
+    mosaicGoal = evt.target.getGeometry().clone()
+    console.log(mosaicGoal.transform('EPSG:3857','EPSG:4326').getCoordinates())
+})
+
+
 window.addEventListener('load', (event) => {
-    console.log('test')
     document.getElementById('sendreq').onclick = submitWorkflowFromTemplate
 })
 
