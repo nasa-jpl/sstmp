@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel --log-level 4 --public-url '/moon' index.html",
+    "start": "parcel --public-url '/moon' index.html",
     "start-local": "parcel --log-level 4 index.html",
     "build": "parcel build --public-url . index.html"
   }
