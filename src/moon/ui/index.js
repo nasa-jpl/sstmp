@@ -50,10 +50,10 @@ const createMosaic = (mosaicExtent) => {
         return response.json();
     }).then((tmpl)=>{
         tmpl.spec.arguments.parameters = [
-            {name: 'west', value: mosaicExtent[0]},
-            {name: 'south', value: mosaicExtent[1]},
-            {name: 'east', value: mosaicExtent[2]},
-            {name: 'north', value: mosaicExtent[3]},
+            {name: 'west', value: mosaicExtent[0].toString()},
+            {name: 'south', value: mosaicExtent[1].toString()},
+            {name: 'east', value: mosaicExtent[2].toString()},
+            {name: 'north', value: mosaicExtent[3].toString()},
         ]
         submitMosaicWorkflow(tmpl)
     })
