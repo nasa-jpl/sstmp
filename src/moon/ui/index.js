@@ -37,14 +37,27 @@ const mousePositionControl = new MousePosition({
 map.addControl(mousePositionControl)
 
 dragBox.on('boxend', (evt)=>{
-    mosaicGoal = evt.target.getGeometry().clone()
-    console.log(mosaicGoal.transform('EPSG:3857','EPSG:4326').getCoordinates())
+    mosaicGoal = evt.target.getGeometry().clone().transform('EPSG:3857','EPSG:4326')
+    const mosaicExtent = mosaicGoal.getExtent()
+    if (confirm(`Begin processing mosaic ${mosaicExtent.map((inp)=>inp.toPrecision(4))} ?`)){
+        createMosaic(mosaicExtent)
+    }
 })
 
-
-window.addEventListener('load', (event) => {
-    document.getElementById('sendreq').onclick = submitWorkflowFromTemplate
-})
+const createMosaic = (mosaicExtent) => {
+    // First, download the workflowtemplate for mosaics
+    fetch('/api/v1/workflow-templates/default/nac-stereo-wftmpl').then(function (response) {
+        return response.json();
+    }).then((tmpl)=>{
+        tmpl.spec.arguments.parameters = [
+            {name: 'west', value: mosaicExtent[0]},
+            {name: 'south', value: mosaicExtent[1]},
+            {name: 'east', value: mosaicExtent[2]},
+            {name: 'north', value: mosaicExtent[3]},
+        ]
+        submitMosaicWorkflow(tmpl)
+    })
+}
 
 const submitWorkflowFromTemplate = () => {
     fetch('/api/v1/workflow-templates/default/nac-stereo-wftmpl').then(function (response) {
@@ -74,14 +87,14 @@ const submitWorkflowFromTemplate = () => {
 }
 
 const submitMosaicWorkflow = (template) => {
-    workflowSpec = {
+    const workflowSpec = {
         "metadata":{
             "generateName": template.metadata.generateName,
             "namespace": template.metadata.namespace
         },
         "spec": template.spec
     }
-    workflowString = JSON.stringify({"workflow": workflowSpec})
+    const workflowString = JSON.stringify({"workflow": workflowSpec})
     fetch("http://acdesk.jpl.nasa.gov/api/v1/workflows/default", {
         "headers": {
             "accept": "*/*",
