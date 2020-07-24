@@ -59,33 +59,6 @@ const createMosaic = (mosaicExtent) => {
     })
 }
 
-const submitWorkflowFromTemplate = () => {
-    fetch('/api/v1/workflow-templates/default/nac-stereo-wftmpl').then(function (response) {
-        return response.json();
-    }).then(function (data) {
-        const frm = document.createElement('form')
-        document.body.appendChild(frm)
-        for (let param of data.spec.arguments.parameters){
-            const inp = document.createElement('input', )
-            const lbl = document.createElement('label')
-            lbl.innerText = param.name
-            frm.appendChild(lbl)
-            frm.appendChild(inp)
-            frm.appendChild(document.createElement('p'))
-            // create injector into data structure
-            inp.onchange = (evt) => {
-                param.value = evt.target.value
-            }
-        }
-        const submit = document.createElement('button')
-        submit.innerText = 'submit workflow with parameters'
-        // change the parameters
-        submit.onclick = () => {submitMosaicWorkflow(data)}
-        document.body.appendChild(submit)
-
-    });
-}
-
 const submitMosaicWorkflow = (template) => {
     const workflowSpec = {
         "metadata":{
@@ -113,10 +86,3 @@ const submitMosaicWorkflow = (template) => {
         .then(response => response.json())
         .then(data => console.log(data))
 }
-
-const start_wf = () => {
-    fetch('/api/v1/workflows/')
-        .then(response => response.json())
-        .then(data => console.log(data))
-}
-document.getElementById('sendreq').click = submitWorkflowFromTemplate
