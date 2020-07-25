@@ -61,16 +61,26 @@ const createMosaic = (mosaicExtent) => {
             {name: 'north', value: mosaicExtent[3].toPrecision(precision)},
         ]
         submitMosaicWorkflow(tmpl)
+        updateMosaicWorkflowList()
     })
 }
 
 const updateMosaicWorkflowList = () => {
+    const mosaicsList = document.getElementById('workflow-list-content')
     fetch('/api/v1/workflows/default')
         .then(response => response.json())
-        .then(data => console.log(data))
+        .then(workflows => {
+            mosaicsList.innerHTML = ''
+            workflows.items.map((wf)=>{
+                const wfp = document.createElement('li')
+                const wfLink = document.createElement('a')
+                wfLink.href = `/workflows/${wf.metadata.namespace}/${wf.metadata.name}`
+                wfLink.innerText = `${wf.metadata.name}, ${wf.status.phase}`
+                wfp.appendChild(wfLink)
+                mosaicsList.appendChild(wfp)
+            }
+            )})
 }
-
-window.updateMosaicWorkflowList = updateMosaicWorkflowList
 
 const submitMosaicWorkflow = (template) => {
     const workflowSpec = {
@@ -99,3 +109,5 @@ const submitMosaicWorkflow = (template) => {
         .then(response => response.json())
         .then(data => console.log(data))
 }
+
+updateMosaicWorkflowList()
