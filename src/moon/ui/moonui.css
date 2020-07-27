@@ -10,13 +10,22 @@ body {
     position: absolute;
 }
 
-#title {
+#title, #instructions, #workflow-list {
     color: white;
     position: absolute;
-    bottom: 5px;
+    background: #808080d0;
     font-size: 17px;
     text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
     width: 100%;
+}
+
+#instructions{
+    top: 0;
+    text-align: center;
+}
+
+#title{
+    bottom: 0;
     text-align: center;
 }
 
@@ -24,15 +33,22 @@ body {
     font-family: Roboto,Montserrat, "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+.ol-zoom {
+    top: 50px !important;
+}
+
 #workflow-list {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: 20px;
+    top: 50px;
     width: 400px;
-    background: grey;
     border-radius: 10px;
 }
 
-#workflow-list h1 {
+#workflow-list h2 {
     margin: 10px;
+}
+
+h1{
+    margin: 0;
 }

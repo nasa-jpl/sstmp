@@ -7,6 +7,7 @@ import {defaults as defaultControls} from 'ol/control';
 import MousePosition from 'ol/control/MousePosition' 
 import {createStringXY} from 'ol/coordinate'
 import {Feature} from 'ol'
+import {platformModifierKeyOnly} from 'ol/events/condition';
 
 let mosaicGoal
 const boxDrawSource = new VectorSource({wrapX: false})
@@ -16,7 +17,7 @@ const moonBaseMap = new TileLayer({
         url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
     })
 })
-const dragBox = new DragBox()
+
 
 const map = new Map({
     target: 'map',
@@ -26,17 +27,18 @@ const map = new Map({
     view: new View({
         center: [0, 0],
         zoom: 0        
-    }),
-    interactions: [
-        dragBox
-    ]
+    })
 });
 
+
+const dragBox = new DragBox({condition: platformModifierKeyOnly})
 const mousePositionControl = new MousePosition({
     coordinateFormat: createStringXY(4),
     projection: 'EPSG:4326'
 })
+
 map.addControl(mousePositionControl)
+map.addInteraction(dragBox)
 
 dragBox.on('boxend', (evt)=>{
     mosaicGoal = evt.target.getGeometry().clone().transform('EPSG:3857','EPSG:4326')
