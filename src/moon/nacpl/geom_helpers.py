@@ -6,8 +6,21 @@ from matplotlib import pyplot
 import geopandas
 from typing import Optional
 
-def corners_to_quadrilateral(west, east, south, north):
+def corners_to_quadrilateral(west, east, south, north, lon0_360=False):
     west, east, south, north = [float(cardinal_dir) for cardinal_dir in (west, east, south, north)]
+    try:
+        assert -180 < west < east < 180
+    except AssertionError:
+        print("Problem with longitude values. Please ensure west is less than east, and you are using -180 to 180 longitude.")
+    
+    try:
+        assert -90 < south < north < 90
+    except AssertionError:
+        print("Problem with latitude values. Please ensure south is less than north, and you are using -90 to 90 latitude.")
+
+    if lon0_360:
+        east, west = [lon + 180 for lon in (east, west)]
+
     return Polygon((
         (west, north), (east, north), (east, south), (west, south)
     ))

@@ -20,8 +20,8 @@ import numpy
 import urllib
 import json
 
-lblfilepath = r'/INDEX.LBL'
-indfilepath = r'/CUMINDEX.TAB'
+lblfilepath = r'c:\tmp\INDEX.LBL'
+indfilepath = r'c:\tmp\CUMINDEX.TAB'
 
 def nac_url_to_id(url):
     """
@@ -536,13 +536,18 @@ def trajectory(trajectory_csv, plot=False, find_covering=False, verbose=False):
 def bounding_box(*, west, east, south, north, plot=False, find_covering=True, return_pairset=False, verbose=False):
     """
     Find stereo pairs that fill a given bounding box
-
-    :param plot:
+    
+    # :param west: Western limit of the box, in -180 to 180 longitude, positive east
+    # :param east: Eastern limit of the box, in -180 to 180 longitude, positive east
+    # :param south: Southern limit of the box, in -90 to 90 latitude, positive north
+    # :param north: Northern limit of the box, in -90 to 90 latitude, positive north
+    :param plot: Whether to plot the footprints of the selected images
     :param find_covering: Whether to search for a minimal set of pairs covering the bounding box. Otherwise, outputs all
     pairs that have good sun and spacecraft geometry.
     :return: A StereoPairSet
     """
-    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north)
+
+    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north, lon0_360=True)
     imgs = ImageSearch(polygon=wkt.dumps(search_poly_shapely))
     pairset = StereoPairSet(imgs)
     filtered_pairset = pairset.filter_sun_geometry().filter_small_overlaps()

@@ -15,7 +15,6 @@ body {
     position: absolute;
     background: #808080d0;
     font-size: 17px;
-    text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
     width: 100%;
 }
 
@@ -45,10 +44,12 @@ body {
     border-radius: 10px;
 }
 
-#workflow-list h2 {
+h2 {
     margin: 10px;
+    text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
 }
 
-h1{
+h1 {
     margin: 0;
+    text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
 }
