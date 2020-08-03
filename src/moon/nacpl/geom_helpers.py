@@ -25,14 +25,6 @@ def corners_to_quadrilateral(west, east, south, north, lon0_360=False):
         (west, north), (east, north), (east, south), (west, south)
     ))
 
-def fill_rect_with_points(west, east, south, north, lat_count, lon_count):
-    x_coords, y_coords = np.meshgrid(
-        np.linspace(west, east, lon_count),   # was using arange but apparently it's not consistent for float steps
-        np.linspace(south, north, lat_count)
-    )
-    points = np.array([x_coords.flatten(), y_coords.flatten()]).T
-    return MultiPoint(points)
-
 def draw_ellipse(center: [float, float],
                  semimajor: float, semiminor: float,
                  rotation: float, save_to: Optional[str] = None):
@@ -43,46 +35,6 @@ def draw_ellipse(center: [float, float],
     gdf.geometry = [ellipse_rotated]
     gdf.plot()
     return gdf
-
-
-def find_polys_from_points(polys, points, detailed_output=False, plot=False):
-    """
-    Returns a set of polgyons, with one for each point in points, where each of the output polgons spatially contains
-    the corresponding point. Assumes polygons are ordered from most to least preferable for inclusion. Will not use the
-    same polygon for multiple input points.
-    :param polys: A geopandas geoseries of polygons
-    :param points: A shapely MultiPoint
-    :param points: A shapely MultiPoint
-    :return: A filtered and re-ordered version of polys with one row for each point in points, unless detailed_output is
-    True, in which case it will be a numpy array with indices corresponding to points and each element the polygon index
-    or np.nan for when a polygon wasn't found for that point.
-    """
-    selected_polys = []
-    for point in points:
-        if plot:
-            pyplot.figure()
-            pyplot.title(str(point))
-            pyplot.gca().plot(point.x, point.y, 'o')
-        found_poly = False
-        for ind, poly in enumerate(polys):
-            if poly.contains(point):
-                selected_polys.append(ind)
-                found_poly = True
-                if plot:
-                    pyplot.plot(*polys[ind].exterior.xy)
-                    pyplot.gca().plot(point.x, point.y, 'x')
-                    pyplot.title(str(ind))
-                break
-        # None of the polygons contained this point
-        if not found_poly:
-            selected_polys.append(np.nan)
-
-    selected_polys = np.array(selected_polys)
-    polys_geoseries = polys.iloc[selected_polys[~np.isnan(selected_polys)]]
-    if detailed_output:
-        return selected_polys, polys_geoseries
-    else:
-        return polys_geoseries
 
 def check_if_polys_cover_bb(polys, bb, buffer=0.01):
     """
