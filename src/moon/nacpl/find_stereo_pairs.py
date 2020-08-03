@@ -20,8 +20,8 @@ import numpy
 import urllib
 import json
 
-lblfilepath = r'c:\tmp\INDEX.LBL'
-indfilepath = r'c:\tmp\CUMINDEX.TAB'
+lblfilepath = r'/INDEX.LBL'
+indfilepath = r'/CUMINDEX.TAB'
 
 def nac_url_to_id(url):
     """
