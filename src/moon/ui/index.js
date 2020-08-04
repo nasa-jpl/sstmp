@@ -9,6 +9,7 @@ import {createStringXY} from 'ol/coordinate'
 import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
 import {platformModifierKeyOnly} from 'ol/events/condition';
+import {Fill, Stroke, Style, Text} from 'ol/style';
 
 let mosaicGoal
 
@@ -16,8 +17,23 @@ let mosaicGoal
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 let workflowData = {}
 
-const boxDrawSource = new VectorSource({wrapX: false})
-const boxDrawLayer = new VectorLayer({source: boxDrawSource})
+const boxDrawSource = new VectorSource({wrapX: false}) 
+const mosaicBBstyle = new Style({
+    text: new Text({
+        text: '',
+        font: '50px sans-serif',
+        placement: 'line'
+    }),
+    stroke: new Stroke({color: 'blue', width: 1})
+}) 
+const mosaicBBstyleWlabel = (feature, resolution) => {
+    mosaicBBstyle.getText().setText(feature.get('name'))
+    return mosaicBBstyle 
+}
+const boxDrawLayer = new VectorLayer({
+    source: boxDrawSource,
+    style: mosaicBBstyleWlabel
+})
 const moonBaseMap = new TileLayer({
     source: new XYZ({
         url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
@@ -89,12 +105,11 @@ const attachToWorkflowEvents = () => {
         const data = JSON.parse(evt.data)
         console.log(data)
         const wfName = data.result.object.metadata.name
-        const wfNodes = data.result.object.status.nodes
-        // get parent node
-        const topNode = wfNodes[wfName]
         if (data.result.type == "DELETED"){
             delete workflowData[wfName]
         } else {
+            const wfNodes = data.result.object.status.nodes
+            const topNode = wfNodes[wfName]
             workflowData[wfName] = {
                 metadata: data.result.object.metadata,
                 boundingBox: arrayToObject(topNode.inputs.parameters),
@@ -133,10 +148,11 @@ const arrayToObject = (arr) => {
 
 const addBox = (workflow) => {
     const extent = new boundingExtent([
-        [workflow.boundingBox.west,workflow.boundingBox.south],
-        [workflow.boundingBox.east,workflow.boundingBox.north],
+        [workflow.boundingBox.west, workflow.boundingBox.south],
+        [workflow.boundingBox.east, workflow.boundingBox.north],
     ])
     const newFeat = new Feature(fromExtent(extent).transform('EPSG:4326', 'EPSG:3857'))
+    newFeat.set('name', workflow.metadata.name)
     boxDrawSource.addFeature(newFeat)
 }
 
