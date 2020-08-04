@@ -16,19 +16,43 @@ let mosaicGoal
 // workflowData is an object to cache all of the app state. Its format is like:
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 let workflowData = {}
+let highlighted = null
+window.highlighted = highlighted
 
 const boxDrawSource = new VectorSource({wrapX: false}) 
-const mosaicBBstyle = new Style({
+const normalStyle = new Style({
     text: new Text({
         text: '',
-        font: '50px sans-serif',
-        placement: 'line'
+        font: `18px sans-serif`,
+        placement: 'point',
+        overflow: true,
+        fill: new Fill({color: 'blue'})
     }),
-    stroke: new Stroke({color: 'blue', width: 1})
-}) 
+    stroke: new Stroke({color: 'blue', width: 1}),
+    fill: new Fill({color: 'rgba(255,255,255,0.4)'})
+})
+
+const highlightStyle = new Style({
+    text: new Text({
+        text: '',
+        font: `18px sans-serif`,
+        placement: 'point',
+        overflow: true,
+        fill: new Fill({color: 'red'})
+    }),
+    stroke: new Stroke({color: 'red', width: 1}),
+    fill: new Fill({color: 'rgba(255,255,255,0.4)'})
+})
+
 const mosaicBBstyleWlabel = (feature, resolution) => {
-    mosaicBBstyle.getText().setText(feature.get('name'))
-    return mosaicBBstyle 
+    let featStyle
+    if (feature.id_ === highlighted){
+        featStyle = highlightStyle  
+    } else {
+        featStyle = normalStyle
+    }
+    featStyle.getText().setText(feature.id_)
+    return featStyle 
 }
 const boxDrawLayer = new VectorLayer({
     source: boxDrawSource,
@@ -87,10 +111,20 @@ const createMosaic = (mosaicExtent) => {
     })
 }
 
+const highlight = (workflowName)=>{
+    console.log(workflowName)
+    highlighted = workflowName
+    boxDrawSource.changed()
+}
+
 const addListEntry = (workflow) => {
     const mosaicsList = document.getElementById('workflow-list-content')
     const wfli = document.createElement('li')
+    wfli.className = workflow.metadata.name
+    wfli.onmouseover = (evt) => {highlight(evt.target.className)}
+    wfli.onmouseleave = (evt) => {highlight(false)}
     const wfLink = document.createElement('a')
+    wfLink.className = workflow.metadata.name
     wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
     wfLink.target = '_blank'
     wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
@@ -152,7 +186,7 @@ const addBox = (workflow) => {
         [workflow.boundingBox.east, workflow.boundingBox.north],
     ])
     const newFeat = new Feature(fromExtent(extent).transform('EPSG:4326', 'EPSG:3857'))
-    newFeat.set('name', workflow.metadata.name)
+    newFeat.setId(workflow.metadata.name)
     boxDrawSource.addFeature(newFeat)
 }
 
