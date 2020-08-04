@@ -11,6 +11,11 @@ import {boundingExtent} from 'ol/extent'
 import {platformModifierKeyOnly} from 'ol/events/condition';
 
 let mosaicGoal
+
+// workflowData is an object to cache all of the app state. Its format is like:
+// {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
+let workflowData = {}
+
 const boxDrawSource = new VectorSource({wrapX: false})
 const boxDrawLayer = new VectorLayer({source: boxDrawSource})
 const moonBaseMap = new TileLayer({
@@ -19,7 +24,7 @@ const moonBaseMap = new TileLayer({
     })
 })
 
-
+// map setup
 const map = new Map({
     target: 'map',
     layers: [
@@ -30,7 +35,6 @@ const map = new Map({
         zoom: 0        
     })
 });
-
 
 const dragBox = new DragBox({condition: platformModifierKeyOnly})
 const mousePositionControl = new MousePosition({
@@ -64,33 +68,61 @@ const createMosaic = (mosaicExtent) => {
             {name: 'north', value: mosaicExtent[3].toPrecision(precision)},
         ]
         submitMosaicWorkflow(tmpl)
-        updateMosaicWorkflowList()
     })
 }
 
-const addListEntry = (data) => {
-    const wf = data.result.object
+const addListEntry = (workflow) => {
     const mosaicsList = document.getElementById('workflow-list-content')
     const wfli = document.createElement('li')
     const wfLink = document.createElement('a')
-    wfLink.href = `/workflows/${wf.metadata.namespace}/${wf.metadata.name}`
-    wfLink.innerText = `${wf.metadata.name}, ${wf.status.phase}`
+    wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
+    wfLink.target = '_blank'
+    wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
     wfli.appendChild(wfLink)
     mosaicsList.appendChild(wfli)
 }
 
 const attachToWorkflowEvents = () => {
     const eventSource = new EventSource('http://acdesk.jpl.nasa.gov/api/v1/workflow-events/default')
+    // receive the message and cache the important parts into workflowData
     eventSource.onmessage = (evt) => {
         const data = JSON.parse(evt.data)
-        const nodes = data.result.object.status.nodes
+        console.log(data)
+        const wfName = data.result.object.metadata.name
+        const wfNodes = data.result.object.status.nodes
         // get parent node
-        const topNode = nodes[data.result.object.metadata.name]
-        console.log(topNode.inputs.parameters)
-        // TODO stop creation of duplicates. Maybe time to go to react.
-        addBoxForNode(topNode)
-        addListEntry(data)
+        const topNode = wfNodes[wfName]
+        if (data.result.type == "DELETED"){
+            delete workflowData[wfName]
+        } else {
+            workflowData[wfName] = {
+                metadata: data.result.object.metadata,
+                boundingBox: arrayToObject(topNode.inputs.parameters),
+                status: data.result.object.status
+            }   
+        }
+        update()
     }
+}
+
+const clearMap = () => {
+    boxDrawSource.clear()
+}
+
+const clearWFList = () => {
+    const wfList = document.getElementById('workflow-list-content')
+    wfList.innerHTML = ''
+}
+
+const update = () => {
+    clearMap()
+    clearWFList()
+    for (const wfName in workflowData){
+        const wf = workflowData[wfName]
+        addBox(wf)
+        addListEntry(wf)
+    }
+    console.log(map)
 }
 
 const arrayToObject = (arr) => {
@@ -99,15 +131,13 @@ const arrayToObject = (arr) => {
     return obj
 }
 
-const addBoxForNode = (node) => {
-    const inpparams = arrayToObject(node.inputs.parameters)
+const addBox = (workflow) => {
     const extent = new boundingExtent([
-        [inpparams.west,inpparams.south],
-        [inpparams.east,inpparams.north],
+        [workflow.boundingBox.west,workflow.boundingBox.south],
+        [workflow.boundingBox.east,workflow.boundingBox.north],
     ])
     const newFeat = new Feature(fromExtent(extent).transform('EPSG:4326', 'EPSG:3857'))
     boxDrawSource.addFeature(newFeat)
-    console.log(map)
 }
 
 const submitMosaicWorkflow = (template) => {
