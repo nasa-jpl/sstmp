@@ -84,6 +84,14 @@ const mousePositionControl = new MousePosition({
 
 map.addControl(mousePositionControl)
 map.addInteraction(dragBox)
+map.on('pointermove', (evt)=>{
+    let newHighlight = null
+    map.forEachFeatureAtPixel(evt.pixel, (feat)=>{
+        newHighlight = feat.id_
+    })
+    highlight(newHighlight)
+    boxDrawSource.changed()
+})
 
 dragBox.on('boxend', (evt)=>{
     mosaicGoal = evt.target.getGeometry().clone().transform('EPSG:3857','EPSG:4326')
@@ -115,14 +123,24 @@ const highlight = (workflowName)=>{
     console.log(workflowName)
     highlighted = workflowName
     boxDrawSource.changed()
+    if (highlighted){
+        document.getElementsByClassName(highlighted)[0].classList.add('highlighted')
+    } else {
+        let highlightedEls = document.getElementsByClassName('highlighted')
+        if (highlightedEls.length > 0){
+            highlightedEls[0].classList.remove('highlighted')
+        }
+    }
 }
+
+
 
 const addListEntry = (workflow) => {
     const mosaicsList = document.getElementById('workflow-list-content')
     const wfli = document.createElement('li')
     wfli.className = workflow.metadata.name
     wfli.onmouseover = (evt) => {highlight(evt.target.className)}
-    wfli.onmouseleave = (evt) => {highlight(false)}
+    wfli.onmouseleave = (evt) => {highlight(null)}
     const wfLink = document.createElement('a')
     wfLink.className = workflow.metadata.name
     wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
