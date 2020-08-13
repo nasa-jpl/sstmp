@@ -10,6 +10,7 @@ import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
 import {platformModifierKeyOnly} from 'ol/events/condition';
 import {Fill, Stroke, Style, Text} from 'ol/style';
+import WKT from "ol/format/WKT";
 
 let mosaicGoal
 
@@ -17,9 +18,9 @@ let mosaicGoal
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 let workflowData = {}
 let highlighted = null
-window.highlighted = highlighted
 
-const boxDrawSource = new VectorSource({wrapX: false}) 
+const boxDrawSource = new VectorSource({wrapX: false})
+const nacFootprintsSource = new VectorSource({wrapX: false})
 const normalStyle = new Style({
     text: new Text({
         text: '',
@@ -58,6 +59,9 @@ const boxDrawLayer = new VectorLayer({
     source: boxDrawSource,
     style: mosaicBBstyleWlabel
 })
+
+const nacFootprintsLayer = new VectorLayer({source: nacFootprintsSource})
+
 const moonBaseMap = new TileLayer({
     source: new XYZ({
         url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
@@ -68,7 +72,7 @@ const moonBaseMap = new TileLayer({
 const map = new Map({
     target: 'map',
     layers: [
-        moonBaseMap, boxDrawLayer
+        moonBaseMap, boxDrawLayer, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
@@ -120,7 +124,6 @@ const createMosaic = (mosaicExtent) => {
 }
 
 const highlight = (workflowName)=>{
-    console.log(workflowName)
     highlighted = workflowName
     boxDrawSource.changed()
     if (highlighted){
@@ -155,7 +158,6 @@ const attachToWorkflowEvents = () => {
     // receive the message and cache the important parts into workflowData
     eventSource.onmessage = (evt) => {
         const data = JSON.parse(evt.data)
-        console.log(data)
         const wfName = data.result.object.metadata.name
         if (data.result.type == "DELETED"){
             delete workflowData[wfName]
@@ -234,6 +236,19 @@ const submitMosaicWorkflow = (template) => {
     })
         .then(response => response.json())
         .then(data => console.log(data))
+}
+
+const addFootprint = (nacId) => {
+    fetch(`http://oderest.rsl.wustl.edu/live2/?query=product&results=x&proj=c0&output=JSON&target=moon&pdsid=${nacId}`)
+        .then(response => response.json())
+        .then(data => {
+            for (let footprint in data.ODEResults.Products){
+                const footprintWkt = data.ODEResults.Products[footprint].Footprint_C0_geometry
+                console.log(footprintWkt)
+                const newFeat = new WKT().readFeature(footprintWkt,  {dataProjection:'EPSG:4326', featureProjection:'EPSG:3857'})
+                nacFootprintsSource.addFeature(newFeat)
+            }
+        })
 }
 
 attachToWorkflowEvents()
