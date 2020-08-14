@@ -17,6 +17,7 @@ let mosaicGoal
 // workflowData is an object to cache all of the app state. Its format is like:
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 let workflowData = {}
+let nacData = {}
 let highlighted = null
 
 const boxDrawSource = new VectorSource({wrapX: false})
@@ -69,7 +70,7 @@ const moonBaseMap = new TileLayer({
 })
 
 // map setup
-const map = new Map({
+const moonmap = new Map({
     target: 'map',
     layers: [
         moonBaseMap, boxDrawLayer, nacFootprintsLayer
@@ -80,17 +81,20 @@ const map = new Map({
     })
 });
 
+// Expose the map globally to allow savvy users to mess with it
+window.moonmap = moonmap
+
 const dragBox = new DragBox({condition: platformModifierKeyOnly})
 const mousePositionControl = new MousePosition({
     coordinateFormat: createStringXY(4),
     projection: 'EPSG:4326'
 })
 
-map.addControl(mousePositionControl)
-map.addInteraction(dragBox)
-map.on('pointermove', (evt)=>{
+moonmap.addControl(mousePositionControl)
+moonmap.addInteraction(dragBox)
+moonmap.on('pointermove', (evt)=>{
     let newHighlight = null
-    map.forEachFeatureAtPixel(evt.pixel, (feat)=>{
+    moonmap.forEachFeatureAtPixel(evt.pixel, (feat)=>{
         newHighlight = feat.id_
     })
     highlight(newHighlight)
@@ -164,11 +168,21 @@ const attachToWorkflowEvents = () => {
         } else {
             const wfNodes = data.result.object.status.nodes
             const topNode = wfNodes[wfName]
+            
+            // Extract useful mosaic-level data from the response
             workflowData[wfName] = {
                 metadata: data.result.object.metadata,
                 boundingBox: arrayToObject(topNode.inputs.parameters),
                 status: data.result.object.status
-            }   
+            }
+            
+            // Collect useful image-level data from the response
+            const nodes = data.result.object.status.nodes
+            for (let node in nodes){
+                if (nodes[node].templateName == 'dl-injest-nac'){
+                    nacData[nodes[node].id] = nodes[node].inputs.parameters[0].value
+                }
+            }
         }
         update()
     }
@@ -191,7 +205,9 @@ const update = () => {
         addBox(wf)
         addListEntry(wf)
     }
-    console.log(map)
+    for (const nac in nacData) {
+        addFootprint(nacData[nac])
+    }
 }
 
 const arrayToObject = (arr) => {
@@ -245,7 +261,10 @@ const addFootprint = (nacId) => {
             for (let footprint in data.ODEResults.Products){
                 const footprintWkt = data.ODEResults.Products[footprint].Footprint_C0_geometry
                 console.log(footprintWkt)
-                const newFeat = new WKT().readFeature(footprintWkt,  {dataProjection:'EPSG:4326', featureProjection:'EPSG:3857'})
+                const newFeat = new WKT().readFeature(footprintWkt)
+                const newFeatGeom = newFeat.getGeometry()
+                newFeatGeom.translate(180, 0)
+                newFeatGeom.transform('EPSG:4326', 'EPSG:3857')
                 nacFootprintsSource.addFeature(newFeat)
             }
         })
