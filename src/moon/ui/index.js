@@ -163,28 +163,40 @@ const attachToWorkflowEvents = () => {
     eventSource.onmessage = (evt) => {
         const data = JSON.parse(evt.data)
         const wfName = data.result.object.metadata.name
-        if (data.result.type == "DELETED"){
+        if (data.result.type == "DELETED") {
             delete workflowData[wfName]
         } else {
             const wfNodes = data.result.object.status.nodes
             const topNode = wfNodes[wfName]
-            
+
             // Extract useful mosaic-level data from the response
             workflowData[wfName] = {
                 metadata: data.result.object.metadata,
                 boundingBox: arrayToObject(topNode.inputs.parameters),
                 status: data.result.object.status
             }
-            
+
             // Collect useful image-level data from the response
             const nodes = data.result.object.status.nodes
-            for (let node in nodes){
-                if (nodes[node].templateName == 'dl-injest-nac'){
-                    nacData[nodes[node].id] = nodes[node].inputs.parameters[0].value
+            // The template names representing statuses where the first parameter is the nacid
+            const statusTemplateNames = ['download-nac', 'img2cub', 'calibrate']
+            for (let node in nodes) {
+                // Check that the current node is one of the ones we're interested in
+                if (statusTemplateNames.includes(nodes[node].templateName)) {
+                    let nacid = nodes[node].inputs.parameters[0].value
+                    // If there's no status yet, or this node is newer than the one we used to set the status
+                    if (!nacData.hasOwnProperty(nacid) ||
+                        (new Date(nodes[node].startedAt) < new Date(nacData[nacid].nodeStartedAt))) {
+                        nacData[nacid] = {
+                            status: nodes[node].templateName,
+                            phase: nodes[node].phase,
+                            nodeStartedAt: new Date(nodes[node].startedAt)
+                        }
+                    }
                 }
             }
+            update()
         }
-        update()
     }
 }
 
@@ -206,7 +218,7 @@ const update = () => {
         addListEntry(wf)
     }
     for (const nac in nacData) {
-        addFootprint(nacData[nac])
+        addFootprint(nac, nacData[nac].status)
     }
 }
 
@@ -254,7 +266,7 @@ const submitMosaicWorkflow = (template) => {
         .then(data => console.log(data))
 }
 
-const addFootprint = (nacId) => {
+const addFootprint = (nacId, status) => {
     fetch(`http://oderest.rsl.wustl.edu/live2/?query=product&results=x&proj=c0&output=JSON&target=moon&pdsid=${nacId}`)
         .then(response => response.json())
         .then(data => {
