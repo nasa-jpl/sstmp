@@ -16,8 +16,8 @@ let mosaicGoal
 
 // workflowData is an object to cache all of the app state. Its format is like:
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
-let workflowData = {}
-let nacData = {}
+const workflowData = {}
+const nacData = {}
 let highlightedMosaicBB = null
 
 const boxDrawSource = new VectorSource({wrapX: false})
@@ -149,9 +149,11 @@ const highlight = (workflowName)=>{
     }
 }
 
-
-
-const addListEntry = (workflow) => {
+/**
+ * Adds a mosaic workflow to the "Mosaic jobs" list
+ * @param workflow
+ */
+const addMosaicJobListEntry = (workflow) => {
     const mosaicsList = document.getElementById('workflow-list-content')
     const wfli = document.createElement('li')
     wfli.className = workflow.metadata.name
@@ -163,6 +165,20 @@ const addListEntry = (workflow) => {
     wfLink.target = '_blank'
     wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
     wfli.appendChild(wfLink)
+
+    // add nacs under each mosaic job
+    const nacsul = document.createElement('ul')
+    nacsul.className = workflow.metadata.name
+    wfli.appendChild(nacsul)
+    for (const nac in nacData){
+        if (nacData[nac].workflowName === workflow.metadata.name){
+            const nacli = document.createElement('li')
+            // status and phase are kind of backwards thanks to Argo :-p
+            nacli.innerText = `${nac}, ${nacData[nac].status}, ${nacData[nac].phase}`
+            nacsul.appendChild(nacli)
+        }
+    }
+    
     mosaicsList.appendChild(wfli)
 }
 
@@ -199,7 +215,8 @@ const attachToWorkflowEvents = () => {
                         nacData[nacid] = {
                             status: nodes[node].templateName,
                             phase: nodes[node].phase,
-                            nodeStartedAt: new Date(nodes[node].startedAt)
+                            nodeStartedAt: new Date(nodes[node].startedAt),
+                            workflowName: wfName
                         }
                     }
                 }
@@ -224,7 +241,7 @@ const update = () => {
     for (const wfName in workflowData){
         const wf = workflowData[wfName]
         addBox(wf)
-        addListEntry(wf)
+        addMosaicJobListEntry(wf)
     }
     for (const nac in nacData) {
         addFootprint(nac, nacData[nac].status)
