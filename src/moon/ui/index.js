@@ -22,7 +22,8 @@ let highlighted = null
 
 const boxDrawSource = new VectorSource({wrapX: false})
 const nacFootprintsSource = new VectorSource({wrapX: false})
-const normalStyle = new Style({
+
+const createStyle = (fillColor, strokeColor) => new Style({
     text: new Text({
         text: '',
         font: `18px sans-serif`,
@@ -30,28 +31,28 @@ const normalStyle = new Style({
         overflow: true,
         fill: new Fill({color: 'blue'})
     }),
-    stroke: new Stroke({color: 'blue', width: 1}),
-    fill: new Fill({color: 'rgba(255,255,255,0.4)'})
-})
+    stroke: new Stroke({color: strokeColor, width: 1}),
+    fill: new Fill({color: fillColor})
+}) 
 
-const highlightStyle = new Style({
-    text: new Text({
-        text: '',
-        font: `18px sans-serif`,
-        placement: 'point',
-        overflow: true,
-        fill: new Fill({color: 'red'})
-    }),
-    stroke: new Stroke({color: 'red', width: 1}),
-    fill: new Fill({color: 'rgba(255,255,255,0.4)'})
-})
+const boxStyles = {
+    mosaicBB: createStyle('rgba(255,255,255,0.4)','blue'),
+    mosaicBBhighlight: createStyle('rgb(255,255,255)','blue'),
+    nacPending: createStyle('rgba(255,255,255,0.4)','grey'),
+    nacPendingHighlight: createStyle('rgba(255,255,255,1)','grey'),
+    nacRunning: createStyle('rgba(255,255,255,0.4)','yellow'),
+    nacRunningHighlight: createStyle('rgba(255,255,255,1)','yellow'),
+    nacSucceeded: createStyle('rgba(255,255,255,0.4)','green'),
+    nacSucceededHighlight: createStyle('rgba(255,255,255,1)','green')
+}
+
 
 const mosaicBBstyleWlabel = (feature, resolution) => {
     let featStyle
     if (feature.id_ === highlighted){
-        featStyle = highlightStyle  
+        featStyle = boxStyles['mosaicBBhighlight']  
     } else {
-        featStyle = normalStyle
+        featStyle = boxStyles['mosaicBB']
     }
     featStyle.getText().setText(feature.id_)
     return featStyle 
