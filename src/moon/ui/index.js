@@ -219,11 +219,11 @@ const attachToWorkflowEvents = () => {
                     let nacid = nodes[node].inputs.parameters[0].value
                     // If there's no status yet, or this node is newer than the one we used to set the status
                     if (!nacData.hasOwnProperty(nacid) ||
-                        (new Date(nodes[node].startedAt) < new Date(nacData[nacid].nodeStartedAt))) {
+                        (Date.parse(nodes[node].startedAt) > Date.parse(nacData[nacid].nodeStartedAt))) {
                         nacData[nacid] = {
                             status: nodes[node].templateName,
                             phase: nodes[node].phase,
-                            nodeStartedAt: new Date(nodes[node].startedAt),
+                            nodeStartedAt: nodes[node].startedAt,
                             workflowName: wfName
                         }
                     }
