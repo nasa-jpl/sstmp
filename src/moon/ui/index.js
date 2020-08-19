@@ -18,7 +18,7 @@ let mosaicGoal
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 let workflowData = {}
 let nacData = {}
-let highlighted = null
+let highlightedMosaicBB = null
 
 const boxDrawSource = new VectorSource({wrapX: false})
 const nacFootprintsSource = new VectorSource({wrapX: false})
@@ -35,24 +35,16 @@ const createStyle = (fillColor, strokeColor) => new Style({
     fill: new Fill({color: fillColor})
 }) 
 
-const boxStyles = {
-    mosaicBB: createStyle('rgba(255,255,255,0.4)','blue'),
-    mosaicBBhighlight: createStyle('rgb(255,255,255)','blue'),
-    nacPending: createStyle('rgba(255,255,255,0.4)','grey'),
-    nacPendingHighlight: createStyle('rgba(255,255,255,1)','grey'),
-    nacRunning: createStyle('rgba(255,255,255,0.4)','yellow'),
-    nacRunningHighlight: createStyle('rgba(255,255,255,1)','yellow'),
-    nacSucceeded: createStyle('rgba(255,255,255,0.4)','green'),
-    nacSucceededHighlight: createStyle('rgba(255,255,255,1)','green')
-}
-
-
 const mosaicBBstyleWlabel = (feature, resolution) => {
     let featStyle
-    if (feature.id_ === highlighted){
-        featStyle = boxStyles['mosaicBBhighlight']  
+    const mosaicBBstyles = {
+        mosaicBB: createStyle('rgba(255,255,255,0.4)', 'blue'),
+        mosaicBBhighlight: createStyle('rgb(255,255,255)', 'blue')
+    }
+    if (feature.id_ === highlightedMosaicBB){
+        featStyle = mosaicBBstyles['mosaicBBhighlight']  
     } else {
-        featStyle = boxStyles['mosaicBB']
+        featStyle = mosaicBBstyles['mosaicBB']
     }
     featStyle.getText().setText(feature.id_)
     return featStyle 
@@ -62,7 +54,23 @@ const boxDrawLayer = new VectorLayer({
     style: mosaicBBstyleWlabel
 })
 
-const nacFootprintsLayer = new VectorLayer({source: nacFootprintsSource})
+const nacFootprintsStyle = (feature, resolution) => {
+    const nacFootprintStyles = {
+        Pending: createStyle('rgba(255,255,255,0.4)','grey'),
+        PendingHighlight: createStyle('rgba(255,255,255,1)','grey'),
+        Running: createStyle('rgba(255,255,255,0.4)','yellow'),
+        RunningHighlight: createStyle('rgba(255,255,255,1)','yellow'),
+        Succeeded: createStyle('rgba(255,255,255,0.4)','green'),
+        SucceededHighlight: createStyle('rgba(255,255,255,1)','green')
+    }
+    const featData = nacData[feature.id_]
+    return nacFootprintStyles[featData.phase]
+}
+
+const nacFootprintsLayer = new VectorLayer({
+    source: nacFootprintsSource,
+    style: nacFootprintsStyle
+})
 
 const moonBaseMap = new TileLayer({
     source: new XYZ({
@@ -129,10 +137,10 @@ const createMosaic = (mosaicExtent) => {
 }
 
 const highlight = (workflowName)=>{
-    highlighted = workflowName
+    highlightedMosaicBB = workflowName
     boxDrawSource.changed()
-    if (highlighted){
-        document.getElementsByClassName(highlighted)[0].classList.add('highlighted')
+    if (highlightedMosaicBB){
+        document.getElementsByClassName(highlightedMosaicBB)[0].classList.add('highlighted')
     } else {
         let highlightedEls = document.getElementsByClassName('highlighted')
         if (highlightedEls.length > 0){
@@ -278,6 +286,7 @@ const addFootprint = (nacId, status) => {
                 const newFeatGeom = newFeat.getGeometry()
                 newFeatGeom.translate(180, 0)
                 newFeatGeom.transform('EPSG:4326', 'EPSG:3857')
+                newFeat.setId(nacId)
                 nacFootprintsSource.addFeature(newFeat)
             }
         })
