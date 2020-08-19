@@ -155,21 +155,29 @@ const highlight = (workflowName)=>{
  */
 const addMosaicJobListEntry = (workflow) => {
     const mosaicsList = document.getElementById('workflow-list-content')
-    const wfli = document.createElement('li')
-    wfli.className = workflow.metadata.name
-    wfli.onmouseover = (evt) => {highlight(evt.target.className)}
-    wfli.onmouseleave = (evt) => {highlight(null)}
+    const wfdetails = document.createElement('details')
+    const wfsummary = document.createElement('summary')
+    wfdetails.appendChild(wfsummary)
+    wfsummary.className = workflow.metadata.name
+    wfsummary.onmouseover = (evt) => {highlight(evt.target.className)}
+    wfsummary.onmouseleave = (evt) => {highlight(null)}
     const wfLink = document.createElement('a')
     wfLink.className = workflow.metadata.name
     wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
     wfLink.target = '_blank'
     wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
-    wfli.appendChild(wfLink)
+    wfsummary.appendChild(wfLink)
+    
+    // Accordion
+    wfsummary.onclick = (evt) => {
+        console.log('accordion')
+        evt.target.toggleAttribute('expanded')
+    }
 
     // add nacs under each mosaic job
     const nacsul = document.createElement('ul')
     nacsul.className = workflow.metadata.name
-    wfli.appendChild(nacsul)
+    wfdetails.appendChild(nacsul)
     for (const nac in nacData){
         if (nacData[nac].workflowName === workflow.metadata.name){
             const nacli = document.createElement('li')
@@ -179,7 +187,7 @@ const addMosaicJobListEntry = (workflow) => {
         }
     }
     
-    mosaicsList.appendChild(wfli)
+    mosaicsList.appendChild(wfdetails)
 }
 
 const attachToWorkflowEvents = () => {
