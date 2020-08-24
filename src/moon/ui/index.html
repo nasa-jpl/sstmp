@@ -7,15 +7,39 @@
 </head>
 <body>
 <div id="map"></div>
-<div id="instructions"><h1>Ctrl + drag to start processing a mosaic</h1></div>
+<div id="instructions"><h1>Pan and zoom the map</h1></div>
 <div id="title"><h1>Solar System Treks Mosaic Pipeline</h1></div>
-<div id="workflow-list">
-    <h2>Mosaic jobs</h2>
-    <div>
-        <div id="workflow-list-content">
+
+<div id="right-panel">
+
+    <div id="new-mosaic" class="rightside-list">
+        <h2>Tools</h2>
+        <p>
+            <select name="mosaic-type" id="mosaic-type-select">
+                <option value="">Pan / zoom</option>
+                <option value="stereo">New stereo mosaic</option>
+                <option value="mono">New mono mosaic</option>
+            </select>
+        </p>
+    </div>
+
+    <div id="workflow-list" class="rightside-list">
+        <h2>Mosaic jobs</h2>
+        <div>
+            <div id="workflow-list-content">
+            </div>
         </div>
     </div>
+
+    <div id="layers" class="rightside-list">
+        <h2>Layers</h2>
+        <div>
+            <div id="workflow-list-content">
+            </div>
+        </div>
+    </div>    
 </div>
+
 <script src="index.js"></script>
 </body>
 </html>

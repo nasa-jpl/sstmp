@@ -10,7 +10,7 @@ body {
     position: absolute;
 }
 
-#title, #instructions, #workflow-list {
+#title, #instructions {
     color: white;
     position: absolute;
     background: #808080d0;
@@ -36,11 +36,16 @@ body {
     top: 50px !important;
 }
 
-#workflow-list {
+#right-panel {
     position: absolute;
     right: 20px;
     top: 50px;
     width: 400px;
+}
+
+.rightside-list{
+    margin: 10px;
+    background: #808080d0;
     border-radius: 10px;
 }
 
@@ -56,4 +61,8 @@ h1 {
 
 .highlighted{
     background: rgba(255,0,0,0.5);
+}
+
+p {
+    margin: 10px;
 }

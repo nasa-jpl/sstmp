@@ -8,7 +8,6 @@ import MousePosition from 'ol/control/MousePosition'
 import {createStringXY} from 'ol/coordinate'
 import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
-import {platformModifierKeyOnly} from 'ol/events/condition';
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import WKT from "ol/format/WKT";
 
@@ -93,14 +92,14 @@ const moonmap = new Map({
 // Expose the map globally to allow savvy users to mess with it
 window.moonmap = moonmap
 
-const dragBox = new DragBox({condition: platformModifierKeyOnly})
+const dragBox = new DragBox()
 const mousePositionControl = new MousePosition({
     coordinateFormat: createStringXY(4),
     projection: 'EPSG:4326'
 })
 
 moonmap.addControl(mousePositionControl)
-moonmap.addInteraction(dragBox)
+
 moonmap.on('pointermove', (evt)=>{
     let newHighlight = null
     moonmap.forEachFeatureAtPixel(evt.pixel, (feat)=>{
@@ -119,6 +118,17 @@ dragBox.on('boxend', (evt)=>{
         boxDrawSource.addFeature(new Feature({geometry: evt.target.getGeometry()}))
     }
 })
+
+const mosaic_dropdown = document.getElementById('mosaic-type-select')
+mosaic_dropdown.onchange = (evt) => {
+    if (['mono', 'stereo'].includes(evt.target.value)){
+        moonmap.addInteraction(dragBox)
+        document.getElementById('instructions').firstElementChild.innerHTML = 'Click and drag to create a mosaic'
+    } else {
+        moonmap.removeInteraction(dragBox)
+        document.getElementById('instructions').firstElementChild.innerHTML = 'Pan and zoom the map'
+    }
+}
 
 const createMosaic = (mosaicExtent) => {
     const precision = 6
