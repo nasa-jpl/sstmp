@@ -201,7 +201,7 @@ const addMosaicJobListEntry = (workflow) => {
 }
 
 const attachToWorkflowEvents = () => {
-    const eventSource = new EventSource('http://acdesk.jpl.nasa.gov/api/v1/workflow-events/default')
+    const eventSource = new EventSource('/api/v1/workflow-events/default')
     // receive the message and cache the important parts into workflowData
     eventSource.onmessage = (evt) => {
         const data = JSON.parse(evt.data)
@@ -291,7 +291,7 @@ const submitMosaicWorkflow = (template) => {
         "spec": template.spec
     }
     const workflowString = JSON.stringify({"workflow": workflowSpec})
-    fetch("http://acdesk.jpl.nasa.gov/api/v1/workflows/default", {
+    fetch("/api/v1/workflows/default", {
         "headers": {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9",
@@ -299,7 +299,7 @@ const submitMosaicWorkflow = (template) => {
             "content-type": "application/json",
             "pragma": "no-cache"
         },
-        "referrer": "http://acdesk.jpl.nasa.gov/workflows?new=%7B%7D",
+        "referrer": "/workflows?new=%7B%7D",
         "referrerPolicy": "no-referrer-when-downgrade",
         "body": workflowString,
         "method": "POST",
