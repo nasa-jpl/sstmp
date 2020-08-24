@@ -117,16 +117,18 @@ dragBox.on('boxend', (evt)=>{
         createMosaic(mosaicExtent)
         boxDrawSource.addFeature(new Feature({geometry: evt.target.getGeometry()}))
     }
+    mosaic_dropdown.value = 'navigate'
 })
 
 const mosaic_dropdown = document.getElementById('mosaic-type-select')
 mosaic_dropdown.onchange = (evt) => {
+    const instructions = document.getElementById('instructions').firstElementChild 
     if (['mono', 'stereo'].includes(evt.target.value)){
         moonmap.addInteraction(dragBox)
-        document.getElementById('instructions').firstElementChild.innerHTML = 'Click and drag to create a mosaic'
+        instructions.innerHTML = 'Click and drag to create a mosaic'
     } else {
         moonmap.removeInteraction(dragBox)
-        document.getElementById('instructions').firstElementChild.innerHTML = 'Pan and zoom the map'
+        instructions.innerHTML = 'Pan and zoom the map'
     }
 }
 
