@@ -71,17 +71,33 @@ const nacFootprintsLayer = new VectorLayer({
     style: nacFootprintsStyle
 })
 
-const moonBaseMap = new TileLayer({
+const hillshade = new TileLayer({
     source: new XYZ({
-        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png'
-    })
+        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/1/{z}/{x}/{y}.png',
+    }),
+    name: 'hillshade'
+})
+
+const nomenclature = new TileLayer({
+    source: new XYZ({
+        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/3/{z}/{x}/{y}.png'
+    }),
+    name: 'nomenclature'
+})
+
+// TODO add the actual nac availability layer
+const nac_avail = new TileLayer({
+    source: new XYZ({
+        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/4/{z}/{x}/{y}.png'
+    }),
+    name: 'nac_avail'
 })
 
 // map setup
 const moonmap = new Map({
     target: 'map',
     layers: [
-        moonBaseMap, boxDrawLayer, nacFootprintsLayer
+        hillshade, nomenclature, boxDrawLayer, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
@@ -97,6 +113,18 @@ const mousePositionControl = new MousePosition({
     coordinateFormat: createStringXY(4),
     projection: 'EPSG:4326'
 })
+
+const layerSelector = document.getElementById('layer-selector')
+const layerSelectionChbxs = [...document.querySelectorAll('input[name="layer-chbx"]')]
+layerSelector.onclick = (evt) => {
+    layerSelectionChbxs.map((chbx)=>{
+        moonmap.getLayers().array_.map((layer)=>{
+            if (chbx.id == layer.get('name')){
+                layer.setVisible(chbx.checked)
+            } 
+        })
+    })
+}
 
 moonmap.addControl(mousePositionControl)
 
