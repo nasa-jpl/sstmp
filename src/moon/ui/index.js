@@ -1,7 +1,7 @@
 import 'ol/ol.css'
 import {Map, View} from 'ol'
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
-import {XYZ, Vector as VectorSource} from 'ol/source'
+import {Tile as TileLayer, Vector as VectorLayer, Image as ImageLayer} from 'ol/layer'
+import {XYZ, Vector as VectorSource, Raster as RasterSource} from 'ol/source'
 import {DragBox} from 'ol/interaction'
 import {fromExtent} from "ol/geom/Polygon";
 import MousePosition from 'ol/control/MousePosition' 
@@ -10,7 +10,7 @@ import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import WKT from "ol/format/WKT";
-import Colorize from "ol-ext/filter/Colorize"; 
+import Chart from 'chart.js'
 
 
 let mosaicGoal
@@ -87,30 +87,100 @@ const nomenclature = new TileLayer({
     name: 'nomenclature'
 })
 
-// TODO add the actual nac availability layer
-const nac_avail = new TileLayer({
-    source: new XYZ({
-        //TODO move files to a CDN
-        url: 'http://acdesk.jpl.nasa.gov:81/files/globalNACcover/NAC_availability.tif/{z}/{x}/{-y}.png'
-    }),
-    name: 'nac_avail'
+const nacAvailTilesXyzSource = new XYZ({
+    url: 'http://acdesk.jpl.nasa.gov:81/files/globalNACcover/NAC_availability.tif/{z}/{x}/{-y}.png',
+    crossOrigin: ''
 })
 
-const enhance = new Colorize('sepia')
-// enhance.setFilter()
-nac_avail.addFilter(enhance)
+const op = (pixels, data)=>{
+    let sourcePixel = pixels[0]
+    sourcePixel[0] = sourcePixel[0] * 4
+    summarize(sourcePixel[0], data.counts)
+    return sourcePixel
+}
+
+const nacAvailTilesRasterSource = new RasterSource({
+    sources: [nacAvailTilesXyzSource],
+    operation: op,
+    lib: {summarize: summarize}
+})
+
+function createCounts(min, max, num) {
+    var values = new Array(num);
+    for (var i = 0; i < num; ++i) {
+        values[i] = 0;
+    }
+    return {
+        min: min,
+        max: max,
+        values: values,
+        delta: (max - min) / num,
+    };
+}
+
+/**
+ * Add incoming data into the histogram bins
+ * @param value
+ * @param counts
+ */
+function summarize(value, counts) {
+    var min = counts.min;
+    var max = counts.max;
+    var num = counts.values.length;
+    if (value < min) {
+        // do nothing
+    } else if (value >= max) {
+        counts.values[num - 1] += 1;
+    } else {
+        // find what bin it goes in
+        var index = Math.floor((value - min) / counts.delta);
+        counts.values[index] += 1;
+    }
+}
+
+// Before running the operations, set up histogram bins
+nacAvailTilesRasterSource.on('beforeoperations', (evt)=>{
+    evt.data.counts = createCounts(0, 255, 10)
+})
+
+const chart = new Chart('hist', {type: 'bar', data: {datsets: [{data: [0]}, {labels: [0]}]}})
+
+nacAvailTilesRasterSource.on('afteroperations', (evt) => {
+    let binLabels = [...Array(evt.data.counts.values.length).keys()].map(n=>n*evt.data.counts.delta)
+    binLabels = binLabels.map(n => `> ${n}`) 
+    chart.data = {
+            labels: binLabels,
+            datasets: [{
+                label: 'Pixels with NAC count',
+                data: evt.data.counts.values
+            }]
+        }
+})
+
+const nac_avail_tiles = new ImageLayer({
+    source: nacAvailTilesRasterSource,
+    name: 'nac_avail',
+    visible: false
+})
+
 
 // map setup
 const moonmap = new Map({
     target: 'map',
     layers: [
-        hillshade, nomenclature, boxDrawLayer, nac_avail, nacFootprintsLayer
+        hillshade, nomenclature, boxDrawLayer, nac_avail_tiles, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
         zoom: 0        
     })
 });
+
+moonmap.on('rendercomplete', ()=>{
+    if (document.getElementById('nac_avail').checked) {
+        chart.update(0)
+    }
+})
 
 // Expose the map globally to allow savvy users to mess with it
 window.moonmap = moonmap
@@ -126,8 +196,11 @@ const layerSelectionChbxs = [...document.querySelectorAll('input[name="layer-chb
 layerSelector.onclick = (evt) => {
     layerSelectionChbxs.map((chbx)=>{
         moonmap.getLayers().array_.map((layer)=>{
-            if (chbx.id == layer.get('name')){
+            if (chbx.id === layer.get('name')){
                 layer.setVisible(chbx.checked)
+                if (chbx.id === 'nac_avail'){
+                    document.getElementById('nacAvailHist').style.display = (chbx.checked ? 'block' : 'none')
+                }
             } 
         })
     })

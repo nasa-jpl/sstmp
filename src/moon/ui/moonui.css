@@ -66,3 +66,8 @@ h1 {
 p {
     margin: 10px;
 }
+
+#nacAvailHist{
+    display: none;
+    background: #808080;
+}
