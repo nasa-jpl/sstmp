@@ -88,7 +88,8 @@ const nomenclature = new TileLayer({
 // TODO add the actual nac availability layer
 const nac_avail = new TileLayer({
     source: new XYZ({
-        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/4/{z}/{x}/{y}.png'
+        //TODO move files to a CDN
+        url: 'http://acdesk.jpl.nasa.gov:81/files/globalNACcover/NAC_availability.tif/{z}/{x}/{-y}.png'
     }),
     name: 'nac_avail'
 })
@@ -97,7 +98,7 @@ const nac_avail = new TileLayer({
 const moonmap = new Map({
     target: 'map',
     layers: [
-        hillshade, nomenclature, boxDrawLayer, nacFootprintsLayer
+        hillshade, nomenclature, boxDrawLayer, nac_avail, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
