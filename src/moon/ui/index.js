@@ -10,6 +10,8 @@ import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import WKT from "ol/format/WKT";
+import Colorize from "ol-ext/filter/Colorize"; 
+
 
 let mosaicGoal
 
@@ -93,6 +95,10 @@ const nac_avail = new TileLayer({
     }),
     name: 'nac_avail'
 })
+
+const enhance = new Colorize('sepia')
+// enhance.setFilter()
+nac_avail.addFilter(enhance)
 
 // map setup
 const moonmap = new Map({
