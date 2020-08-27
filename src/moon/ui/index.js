@@ -82,6 +82,7 @@ dragBox.on('boxend', (evt)=>{
         boxDrawSource.addFeature(new Feature({geometry: evt.target.getGeometry()}))
     }
     mosaic_dropdown.value = 'navigate'
+    mosaic_dropdown.dispatchEvent(new Event('change'))
 })
 
 const mosaic_dropdown = document.getElementById('mosaic-type-select')
