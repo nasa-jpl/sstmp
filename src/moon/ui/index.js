@@ -6,23 +6,25 @@ import MousePosition from 'ol/control/MousePosition'
 import {createStringXY} from 'ol/coordinate'
 import {Feature} from 'ol'
 import {boundingExtent} from 'ol/extent'
-import {Fill, Stroke, Style, Text} from 'ol/style';
 import WKT from "ol/format/WKT";
-import Chart from 'chart.js'
-import {hillshade, nomenclature, boxDrawLayer, boxDrawSource, nac_avail_tiles, nacFootprintsLayer} from "./layers";
+import {
+    hillshade,
+    nomenclature,
+    boxDrawLayer,
+    boxDrawSource,
+    nac_avail_tiles,
+    nacFootprintsLayer,
+    mosaicGoal,
+    nacFootprintsSource
+} from "./layers";
 import {nacHist} from "./nac_hist";
+import {workflowData, nacData, attachToWorkflowEvents} from "./rxdata";
 
-
-let mosaicGoal
-
-// workflowData is an object to cache all of the app state. Its format is like:
-// {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
-const workflowData = {}
-const nacData = {}
+// highlightedMosaicBB is an object 
 let highlightedMosaicBB = null
 
 // map setup
-const moonmap = new Map({
+export const moonmap = new Map({
     target: 'map',
     layers: [
         hillshade, nomenclature, boxDrawLayer, nac_avail_tiles, nacFootprintsLayer
@@ -38,9 +40,6 @@ moonmap.on('rendercomplete', ()=>{
         nacHist.update(0)
     }
 })
-
-// Expose the map globally to allow savvy users to mess with it
-window.moonmap = moonmap
 
 const dragBox = new DragBox()
 const mousePositionControl = new MousePosition({
@@ -167,52 +166,6 @@ const addMosaicJobListEntry = (workflow) => {
     mosaicsList.appendChild(wfdetails)
 }
 
-const attachToWorkflowEvents = () => {
-    const eventSource = new EventSource('/api/v1/workflow-events/default')
-    // receive the message and cache the important parts into workflowData
-    eventSource.onmessage = (evt) => {
-        const data = JSON.parse(evt.data)
-        const wfName = data.result.object.metadata.name
-        if (wfName.startsWith('nac')){
-            if (data.result.type == "DELETED") {
-                delete workflowData[wfName]
-            } else {
-                const wfNodes = data.result.object.status.nodes
-                const topNode = wfNodes[wfName]
-    
-                // Extract useful mosaic-level data from the response
-                workflowData[wfName] = {
-                    metadata: data.result.object.metadata,
-                    boundingBox: arrayToObject(topNode.inputs.parameters),
-                    status: data.result.object.status
-                }
-    
-                // Collect useful image-level data from the response
-                const nodes = data.result.object.status.nodes
-                // The template names representing statuses where the first parameter is the nacid
-                const statusTemplateNames = ['download-nac', 'img2cub', 'calibrate']
-                for (let node in nodes) {
-                    // Check that the current node is one of the ones we're interested in
-                    if (statusTemplateNames.includes(nodes[node].templateName)) {
-                        let nacid = nodes[node].inputs.parameters[0].value
-                        // If there's no status yet, or this node is newer than the one we used to set the status
-                        if (!nacData.hasOwnProperty(nacid) ||
-                            (Date.parse(nodes[node].startedAt) > Date.parse(nacData[nacid].nodeStartedAt))) {
-                            nacData[nacid] = {
-                                status: nodes[node].templateName,
-                                phase: nodes[node].phase,
-                                nodeStartedAt: nodes[node].startedAt,
-                                workflowName: wfName
-                            }
-                        }
-                    }
-                }
-                update()
-            }
-        }
-    }
-}
-
 const clearMap = () => {
     boxDrawSource.clear()
 }
@@ -222,7 +175,7 @@ const clearWFList = () => {
     wfList.innerHTML = ''
 }
 
-const update = () => {
+export const update = () => {
     clearMap()
     clearWFList()
     for (const wfName in workflowData){

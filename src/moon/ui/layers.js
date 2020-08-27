@@ -6,7 +6,8 @@ import "./nac_hist"
 
 
 export const boxDrawSource = new VectorSource({wrapX: false})
-const nacFootprintsSource = new VectorSource({wrapX: false})
+export const nacFootprintsSource = new VectorSource({wrapX: false})
+export let mosaicGoal
 
 const createStyle = (fillColor, strokeColor) => new Style({
     text: new Text({
