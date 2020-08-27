@@ -27,7 +27,7 @@ let mosaicGoal
 export const moonmap = new Map({
     target: 'map',
     layers: [
-        hillshade, nomenclature, boxDrawLayer, nac_avail_tiles, nacFootprintsLayer
+        hillshade, nomenclature, nac_avail_tiles, boxDrawLayer, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
