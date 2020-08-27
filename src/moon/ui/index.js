@@ -24,6 +24,8 @@ let highlightedMosaicBB = null
 const boxDrawSource = new VectorSource({wrapX: false})
 const nacFootprintsSource = new VectorSource({wrapX: false})
 
+Chart.defaults.global.defaultColor="rgba(0,0,0,1)"
+
 const createStyle = (fillColor, strokeColor) => new Style({
     text: new Text({
         text: '',
@@ -142,9 +144,10 @@ function summarize(value, counts) {
 nacAvailTilesRasterSource.on('beforeoperations', (evt)=>{
     evt.data.counts = createCounts(0, 255, 10)
 })
-
+Chart.defaults.global.defaultFontColor = 'white'
+Chart.defaults.global.elements.rectangle.backgroundColor = "white"
 const chart = new Chart('hist', {type: 'bar', data: {datsets: [{data: [0]}, {labels: [0]}]}})
-
+window.mychart = chart
 nacAvailTilesRasterSource.on('afteroperations', (evt) => {
     let binLabels = [...Array(evt.data.counts.values.length).keys()].map(n=>n*evt.data.counts.delta)
     binLabels = binLabels.map(n => `> ${n}`) 
