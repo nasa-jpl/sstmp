@@ -1,7 +1,5 @@
 import 'ol/ol.css'
 import {Map, View} from 'ol'
-import {Tile as TileLayer, Vector as VectorLayer, Image as ImageLayer} from 'ol/layer'
-import {XYZ, Vector as VectorSource, Raster as RasterSource} from 'ol/source'
 import {DragBox} from 'ol/interaction'
 import {fromExtent} from "ol/geom/Polygon";
 import MousePosition from 'ol/control/MousePosition' 
@@ -11,6 +9,8 @@ import {boundingExtent} from 'ol/extent'
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import WKT from "ol/format/WKT";
 import Chart from 'chart.js'
+import {hillshade, nomenclature, boxDrawLayer, boxDrawSource, nac_avail_tiles, nacFootprintsLayer} from "./layers";
+import {nacHist} from "./nac_hist";
 
 
 let mosaicGoal
@@ -20,152 +20,6 @@ let mosaicGoal
 const workflowData = {}
 const nacData = {}
 let highlightedMosaicBB = null
-
-const boxDrawSource = new VectorSource({wrapX: false})
-const nacFootprintsSource = new VectorSource({wrapX: false})
-
-Chart.defaults.global.defaultColor="rgba(0,0,0,1)"
-
-const createStyle = (fillColor, strokeColor) => new Style({
-    text: new Text({
-        text: '',
-        font: `18px sans-serif`,
-        placement: 'point',
-        overflow: true,
-        fill: new Fill({color: 'blue'})
-    }),
-    stroke: new Stroke({color: strokeColor, width: 1}),
-    fill: new Fill({color: fillColor})
-}) 
-
-const mosaicBBstyleWlabel = (feature, resolution) => {
-    let featStyle
-    const mosaicBBstyles = {
-        mosaicBB: createStyle('rgba(255,255,255,0.4)', 'blue'),
-        mosaicBBhighlight: createStyle('rgb(255,255,255)', 'blue')
-    }
-    if (feature.id_ === highlightedMosaicBB){
-        featStyle = mosaicBBstyles['mosaicBBhighlight']  
-    } else {
-        featStyle = mosaicBBstyles['mosaicBB']
-    }
-    featStyle.getText().setText(feature.id_)
-    return featStyle 
-}
-const boxDrawLayer = new VectorLayer({
-    source: boxDrawSource,
-    style: mosaicBBstyleWlabel
-})
-
-const nacFootprintsStyle = (feature, resolution) => {
-    const nacFootprintStyles = {
-        Pending: createStyle('rgba(255,255,255,0.4)','grey'),
-        PendingHighlight: createStyle('rgba(255,255,255,1)','grey'),
-        Running: createStyle('rgba(255,255,255,0.4)','yellow'),
-        RunningHighlight: createStyle('rgba(255,255,255,1)','yellow'),
-        Succeeded: createStyle('rgba(255,255,255,0.4)','green'),
-        SucceededHighlight: createStyle('rgba(255,255,255,1)','green')
-    }
-    const featData = nacData[feature.id_]
-    return nacFootprintStyles[featData.phase]
-}
-
-const nacFootprintsLayer = new VectorLayer({
-    source: nacFootprintsSource,
-    style: nacFootprintsStyle
-})
-
-const hillshade = new TileLayer({
-    source: new XYZ({
-        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/1/{z}/{x}/{y}.png',
-    }),
-    name: 'hillshade'
-})
-
-const nomenclature = new TileLayer({
-    source: new XYZ({
-        url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/3/{z}/{x}/{y}.png'
-    }),
-    name: 'nomenclature'
-})
-
-const nacAvailTilesXyzSource = new XYZ({
-    url: 'http://acdesk.jpl.nasa.gov:81/files/globalNACcover/NAC_availability.tif/{z}/{x}/{-y}.png',
-    crossOrigin: ''
-})
-
-const op = (pixels, data)=>{
-    let sourcePixel = pixels[0]
-    sourcePixel[0] = sourcePixel[0] * 4
-    summarize(sourcePixel[0], data.counts)
-    return sourcePixel
-}
-
-const nacAvailTilesRasterSource = new RasterSource({
-    sources: [nacAvailTilesXyzSource],
-    operation: op,
-    lib: {summarize: summarize}
-})
-
-function createCounts(min, max, num) {
-    var values = new Array(num);
-    for (var i = 0; i < num; ++i) {
-        values[i] = 0;
-    }
-    return {
-        min: min,
-        max: max,
-        values: values,
-        delta: (max - min) / num,
-    };
-}
-
-/**
- * Add incoming data into the histogram bins
- * @param value
- * @param counts
- */
-function summarize(value, counts) {
-    var min = counts.min;
-    var max = counts.max;
-    var num = counts.values.length;
-    if (value < min) {
-        // do nothing
-    } else if (value >= max) {
-        counts.values[num - 1] += 1;
-    } else {
-        // find what bin it goes in
-        var index = Math.floor((value - min) / counts.delta);
-        counts.values[index] += 1;
-    }
-}
-
-// Before running the operations, set up histogram bins
-nacAvailTilesRasterSource.on('beforeoperations', (evt)=>{
-    evt.data.counts = createCounts(0, 255, 10)
-})
-Chart.defaults.global.defaultFontColor = 'white'
-Chart.defaults.global.elements.rectangle.backgroundColor = "white"
-const chart = new Chart('hist', {type: 'bar', data: {datsets: [{data: [0]}, {labels: [0]}]}})
-window.mychart = chart
-nacAvailTilesRasterSource.on('afteroperations', (evt) => {
-    let binLabels = [...Array(evt.data.counts.values.length).keys()].map(n=>n*evt.data.counts.delta)
-    binLabels = binLabels.map(n => `> ${n}`) 
-    chart.data = {
-            labels: binLabels,
-            datasets: [{
-                label: 'Pixels with NAC count',
-                data: evt.data.counts.values
-            }]
-        }
-})
-
-const nac_avail_tiles = new ImageLayer({
-    source: nacAvailTilesRasterSource,
-    name: 'nac_avail',
-    visible: false
-})
-
 
 // map setup
 const moonmap = new Map({
@@ -181,7 +35,7 @@ const moonmap = new Map({
 
 moonmap.on('rendercomplete', ()=>{
     if (document.getElementById('nac_avail').checked) {
-        chart.update(0)
+        nacHist.update(0)
     }
 })
 
