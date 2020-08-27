@@ -14,14 +14,14 @@ import {
     boxDrawSource,
     nac_avail_tiles,
     nacFootprintsLayer,
-    mosaicGoal,
-    nacFootprintsSource
+    nacFootprintsSource,
+    addMosaicJobListEntry,
+    highlight
 } from "./layers";
 import {nacHist} from "./nac_hist";
 import {workflowData, nacData, attachToWorkflowEvents} from "./rxdata";
 
-// highlightedMosaicBB is an object 
-let highlightedMosaicBB = null
+let mosaicGoal
 
 // map setup
 export const moonmap = new Map({
@@ -112,60 +112,6 @@ const createMosaic = (mosaicExtent) => {
     })
 }
 
-const highlight = (workflowName)=>{
-    highlightedMosaicBB = workflowName
-    boxDrawSource.changed()
-    if (highlightedMosaicBB){
-        document.getElementsByClassName(highlightedMosaicBB)[0].classList.add('highlighted')
-    } else {
-        let highlightedEls = document.getElementsByClassName('highlighted')
-        if (highlightedEls.length > 0){
-            highlightedEls[0].classList.remove('highlighted')
-        }
-    }
-}
-
-/**
- * Adds a mosaic workflow to the "Mosaic jobs" list
- * @param workflow
- */
-const addMosaicJobListEntry = (workflow) => {
-    const mosaicsList = document.getElementById('workflow-list-content')
-    const wfdetails = document.createElement('details')
-    const wfsummary = document.createElement('summary')
-    wfdetails.appendChild(wfsummary)
-    wfsummary.className = workflow.metadata.name
-    wfsummary.onmouseover = (evt) => {highlight(evt.target.className)}
-    wfsummary.onmouseleave = (evt) => {highlight(null)}
-    const wfLink = document.createElement('a')
-    wfLink.className = workflow.metadata.name
-    wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
-    wfLink.target = '_blank'
-    wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
-    wfsummary.appendChild(wfLink)
-    
-    // Accordion
-    wfsummary.onclick = (evt) => {
-        console.log('accordion')
-        evt.target.toggleAttribute('expanded')
-    }
-
-    // add nacs under each mosaic job
-    const nacsul = document.createElement('ul')
-    nacsul.className = workflow.metadata.name
-    wfdetails.appendChild(nacsul)
-    for (const nac in nacData){
-        if (nacData[nac].workflowName === workflow.metadata.name){
-            const nacli = document.createElement('li')
-            // status and phase are kind of backwards thanks to Argo :-p
-            nacli.innerText = `${nac}, ${nacData[nac].status}, ${nacData[nac].phase}`
-            nacsul.appendChild(nacli)
-        }
-    }
-    
-    mosaicsList.appendChild(wfdetails)
-}
-
 const clearMap = () => {
     boxDrawSource.clear()
 }
@@ -175,7 +121,7 @@ const clearWFList = () => {
     wfList.innerHTML = ''
 }
 
-export const update = () => {
+const update = () => {
     clearMap()
     clearWFList()
     for (const wfName in workflowData){
@@ -186,12 +132,6 @@ export const update = () => {
     for (const nac in nacData) {
         addFootprint(nac, nacData[nac].status)
     }
-}
-
-const arrayToObject = (arr) => {
-    const obj = {}
-    arr.map((el) => obj[el.name] = el.value)
-    return obj
 }
 
 const addBox = (workflow) => {
@@ -249,4 +189,4 @@ const addFootprint = (nacId, status) => {
         })
 }
 
-attachToWorkflowEvents()
+attachToWorkflowEvents(update)

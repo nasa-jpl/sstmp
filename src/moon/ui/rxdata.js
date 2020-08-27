@@ -3,13 +3,14 @@
 // workflowData is an object to cache all of the app state representing workflows. Its format is like:
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 import {update} from "./index";
+import {arrayToObject} from "./util";
 
 export const workflowData = {}
 
 // nacData is an object to cache all of the app state representing imagery.
 export const nacData = {}
 
-export const attachToWorkflowEvents = () => {
+export const attachToWorkflowEvents = (updateCallback) => {
     const eventSource = new EventSource('/api/v1/workflow-events/default')
     // receive the message and cache the important parts into workflowData
     eventSource.onmessage = (evt) => {
@@ -49,7 +50,7 @@ export const attachToWorkflowEvents = () => {
                         }
                     }
                 }
-                update()
+                updateCallback()
             }
         }
     }
