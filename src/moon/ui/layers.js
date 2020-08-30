@@ -134,7 +134,7 @@ export const nomenclature = new TileLayer({
 })
 
 const nacAvailTilesXyzSource = new XYZ({
-    url: 'http://acdesk.jpl.nasa.gov:81/files/globalNACcover/NAC_availability.tif/{z}/{x}/{-y}.png',
+    url: 'https://eyeritac.sirv.com/NACcoverageCounts/{z}/{x}/{-y}.png',
     crossOrigin: ''
 })
 
