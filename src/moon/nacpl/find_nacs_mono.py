@@ -16,6 +16,7 @@ def bounding_box_mono(*, west:float, east:float, south:float, north:float, exclu
         polygon=wkt.dumps(search_poly_shapely)
     )
     imgs.results = imgs.results.drop(exclude)
+    imgs.results['geometry'] = imgs.results.footprint_geometry
     imgs, stats = geom_helpers.covering_set_search(
         full_poly_set=imgs.results,
         search_poly=search_poly_shapely,
