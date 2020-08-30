@@ -10,7 +10,7 @@ import WKT from "ol/format/WKT";
 import {
     hillshade,
     nomenclature,
-    boxDrawLayer,
+    mosaicFootprints,
     boxDrawSource,
     nac_avail_tiles,
     nacFootprintsLayer,
@@ -27,13 +27,16 @@ let mosaicGoal
 export const moonmap = new Map({
     target: 'map',
     layers: [
-        hillshade, nomenclature, nac_avail_tiles, boxDrawLayer, nacFootprintsLayer
+        hillshade, nomenclature, nac_avail_tiles, mosaicFootprints, nacFootprintsLayer
     ],
     view: new View({
         center: [0, 0],
         zoom: 0        
     })
 });
+
+// expose the map as a global so savvy users can interact with it using dev tools
+window.moonmap = moonmap
 
 moonmap.on('rendercomplete', ()=>{
     if (document.getElementById('nac_avail').checked) {
@@ -75,7 +78,6 @@ moonmap.on('pointermove', (evt)=>{
 
 dragBox.on('boxend', (evt)=>{
     mosaicGoal = evt.target.getGeometry().clone().transform('EPSG:3857','EPSG:4326')
-    console.log(boxDrawSource)
     const mosaicExtent = mosaicGoal.getExtent()
     if (confirm(`Begin processing mosaic ${mosaicExtent.map((inp)=>inp.toPrecision(4))} ?`)){
         createMosaic(mosaicExtent)
@@ -185,6 +187,7 @@ const addFootprint = (nacId, status) => {
                 newFeatGeom.translate(180, 0)
                 newFeatGeom.transform('EPSG:4326', 'EPSG:3857')
                 newFeat.setId(nacId)
+                console.log(nacFootprintsSource)
                 nacFootprintsSource.addFeature(newFeat)
             }
         })

@@ -38,9 +38,10 @@ const mosaicBBstyleWlabel = (feature, resolution) => {
     featStyle.getText().setText(feature.id_)
     return featStyle
 }
-export const boxDrawLayer = new VectorLayer({
+export const mosaicFootprints = new VectorLayer({
     source: boxDrawSource,
-    style: mosaicBBstyleWlabel
+    style: mosaicBBstyleWlabel,
+    name: 'mosaicFootprints'
 })
 
 
@@ -114,7 +115,8 @@ const nacFootprintsStyle = (feature, resolution) => {
 
 export const nacFootprintsLayer = new VectorLayer({
     source: nacFootprintsSource,
-    style: nacFootprintsStyle
+    style: nacFootprintsStyle,
+    name: 'nacFootprints'
 })
 
 export const hillshade = new TileLayer({

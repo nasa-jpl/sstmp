@@ -50,8 +50,8 @@ export const attachToWorkflowEvents = (updateCallback) => {
                         }
                     }
                 }
-                updateCallback()
             }
+            updateCallback()
         }
     }
 }
