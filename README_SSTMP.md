@@ -31,7 +31,7 @@ Development goals of the project are:
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
  - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH
 
-Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, including:
+Internally, SSTMP uses a slew of free and open source programs, including:
  - USGS ISIS
  - Ames stereo pipeline (ASP)
  - Geopandas
@@ -42,7 +42,8 @@ Internally, NAC Mosaic Pipeline uses a slew of free and open source programs, in
 If you already have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src`
-1. Configure your storage settings. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`. 
+1. Configure your storage settings. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`.
+1. Run `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds/minimal`, for complicated reasons. Hopefully this step can be removed. 
 1. Install SSTMP: run `skaffold run`
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
