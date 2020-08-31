@@ -5,10 +5,10 @@ resources:
   - volumes.yaml
   - moon/ui/k8s-moonui.yaml
   - ingress.yaml
-  - moon/wftmpl/dl-ingest-nac.yaml
   - moon/wftmpl/nacpl_mono_from_bb.yaml
   - moon/wftmpl/nacpl_mono_from_list.yaml
   - moon/wftmpl/nacpl_stereo_vol.yaml
+  - moon/wftmpl/nacpl_mono_vol.yaml
 
 patches:
   - argo-configmap.yaml
