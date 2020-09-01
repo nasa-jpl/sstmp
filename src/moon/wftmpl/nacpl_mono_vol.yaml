@@ -12,7 +12,8 @@
 #      map2map
 #      equalizer
 #      noseam
-#
+#  convert to geotiff
+#      cub2tif
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
@@ -102,21 +103,17 @@ spec:
             dependencies:
               - mosrange
           - name: equalizer
-            arguments:
-              parameters:
-                - name: prod-id
-                  value: "{{item}}"
             template: equalizer
             dependencies:
               - cam2map
           - name: noseam
-            arguments:
-              parameters:
-                - name: prod-id
-                  value: "{{item}}"
             template: noseam
             dependencies:
               - equalizer
+          - name: cub2tif
+            template: cub2tif
+            dependencies:
+              - noseam
 
     #----------------------
     # Low-level templates
@@ -284,3 +281,11 @@ spec:
           . activate nacpl_env
           echo /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
           noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub samples=333 lines=333
+
+    - name: cub2tif
+      script:
+        <<: *nacpl-container
+        command: [ bash ]
+        source: |
+          . activate nacpl_env
+          isis2std from=/data/nac/monomos/{{workflow.name}}/mos.cub to=/data/nac/monomos/{{workflow.name}}/mos.tif
