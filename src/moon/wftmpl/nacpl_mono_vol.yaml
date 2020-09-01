@@ -277,13 +277,10 @@ spec:
           mv /data/nac/monomos/{{workflow.name}}/map/*.equ.cub /data/nac/monomos/{{workflow.name}}/equalized/
 
     - name: noseam
-      inputs:
-        parameters:
-          - name: prod-id
       script:
         <<: *nacpl-container
         command: [ bash ]
         source: |
           . activate nacpl_env
           echo /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
-          noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub
+          noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub samples=333 lines=333
