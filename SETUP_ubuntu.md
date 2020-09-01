@@ -23,6 +23,10 @@ Terminal access to an Ubuntu 18.04 system, with root permissions.
 1. Change directories into where skaffold.yaml is
 
     `cd src`
+1. Manually install Argo custom resource definitions, for complicated reasons. Hopefully this step can be removed.
+
+    `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds/minimal`, 
+
 1. Use skaffold to build and start the app
 
     `skaffold run`
