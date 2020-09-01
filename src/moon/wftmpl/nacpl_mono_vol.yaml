@@ -87,10 +87,6 @@ spec:
               - select-nacs
           - name: mosrange
             template: mosrange
-            arguments:
-              parameters:
-                - name: prod-id
-                  value: "{{item}}"
             dependencies:
               - dl-ingest-nac
           - name: cam2map
@@ -143,7 +139,7 @@ spec:
         command: [bash]
         source: |
           . activate nacpl_env
-          echo /data/nac/monomos/{{workflow.name}}/*.cal.cub > /data/nac/monomos/{{workflow.name}}/mosrange.lst
+          ls -1 /data/nac/monomos/{{workflow.name}}/*.cal.cub > /data/nac/monomos/{{workflow.name}}/mosrange.lst
           mosrange from=/data/nac/monomos/{{workflow.name}}/mosrange.lst to=/data/nac/monomos/{{workflow.name}}/mos.map
 
     #---------------------------
@@ -269,7 +265,7 @@ spec:
         source: |
           . activate nacpl_env
           ls -1 /data/nac/monomos/{{workflow.name}}/map/*.map.cub > /tmp/fromlist.lis
-          equalizer fromlist=/tmp/fromlist.lis
+          equalizer fromlist=/tmp/fromlist.lis outstats=/data/nac/monomos/{{workflow.name}}/equ_stats.txt
           mkdir -p /data/nac/monomos/{{workflow.name}}/equalized
           mv /data/nac/monomos/{{workflow.name}}/map/*.equ.cub /data/nac/monomos/{{workflow.name}}/equalized/
 
@@ -279,14 +275,14 @@ spec:
         command: [ bash ]
         source: |
           . activate nacpl_env
-          echo /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
+          ls -1 /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
           noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub samples=333 lines=333
-      outputs:
-        artifacts:
-          - name: mosaic.tif
-            path: /data/nac/monomos/{{workflow.name}}/mos.tif
-            archive:
-              none: {}
+#      outputs:
+#        artifacts:
+#          - name: /{{workflow.name}}/moscub
+#            path: /data/nac/monomos/{{workflow.name}}/mos.cub
+#            archive:
+#              none: {}
 
     - name: cub2tif
       script:
@@ -294,10 +290,10 @@ spec:
         command: [ bash ]
         source: |
           . activate nacpl_env
-          isis2std from=/data/nac/monomos/{{workflow.name}}/mos.cub to=/data/nac/monomos/{{workflow.name}}/mos.tif
+          gdal_translate /data/nac/monomos/{{workflow.name}}/mos.cub /data/nac/monomos/{{workflow.name}}/mos.tif
       outputs:
         artifacts:
-          - name: mosaic.tif
+          - name: mostif
             path: /data/nac/monomos/{{workflow.name}}/mos.tif
             archive:
               none: {}

@@ -7,6 +7,12 @@ import geopandas
 from typing import Optional
 
 def corners_to_quadrilateral(west, east, south, north, lon0_360=False):
+    """
+     
+    :param lon0_360: Boolean. If true, converts -180 to +180 longitudes to 0 to 360 
+    :return: 
+    """
+    
     west, east, south, north = [float(cardinal_dir) for cardinal_dir in (west, east, south, north)]
     try:
         assert -180 < west < east < 180
