@@ -18,7 +18,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: nacpl-mono-vol
+  name: nac-mono-mos
+  generateName: nac-mono-mos-
   namespace: default
 spec:
   entrypoint: nac-mosaic

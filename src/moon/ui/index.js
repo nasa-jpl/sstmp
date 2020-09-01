@@ -80,7 +80,8 @@ dragBox.on('boxend', (evt)=>{
     mosaicGoal = evt.target.getGeometry().clone().transform('EPSG:3857','EPSG:4326')
     const mosaicExtent = mosaicGoal.getExtent()
     if (confirm(`Begin processing mosaic ${mosaicExtent.map((inp)=>inp.toPrecision(4))} ?`)){
-        createMosaic(mosaicExtent)
+        let mosaicType = document.getElementById('mosaic-type-select').value
+        createMosaic(mosaicExtent, mosaicType)
         boxDrawSource.addFeature(new Feature({geometry: evt.target.getGeometry()}))
     }
     mosaic_dropdown.value = 'navigate'
@@ -99,10 +100,10 @@ mosaic_dropdown.onchange = (evt) => {
     }
 }
 
-const createMosaic = (mosaicExtent) => {
+const createMosaic = (mosaicExtent, mosaicType) => {
     const precision = 6
     // First, download the workflowtemplate for mosaics
-    fetch('/api/v1/workflow-templates/default/nac-stereo-wftmpl').then(function (response) {
+    fetch(`/api/v1/workflow-templates/default/nac-${mosaicType}-mos`).then(function (response) {
         return response.json();
     }).then((tmpl)=>{
         tmpl.spec.arguments.parameters = [
