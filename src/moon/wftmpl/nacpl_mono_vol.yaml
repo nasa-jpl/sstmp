@@ -281,6 +281,12 @@ spec:
           . activate nacpl_env
           echo /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
           noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub samples=333 lines=333
+      outputs:
+        artifacts:
+          - name: mosaic.tif
+            path: /data/nac/monomos/{{workflow.name}}/mos.tif
+            archive:
+              none: {}
 
     - name: cub2tif
       script:
@@ -289,3 +295,9 @@ spec:
         source: |
           . activate nacpl_env
           isis2std from=/data/nac/monomos/{{workflow.name}}/mos.cub to=/data/nac/monomos/{{workflow.name}}/mos.tif
+      outputs:
+        artifacts:
+          - name: mosaic.tif
+            path: /data/nac/monomos/{{workflow.name}}/mos.tif
+            archive:
+              none: {}
