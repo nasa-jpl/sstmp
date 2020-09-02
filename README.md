@@ -55,3 +55,11 @@ Let's say you want a DEM and orthoimage mosaic of a bounding box which goes from
 After following [setup](#setup) above, Run `argo submit NAC_pl_workflow.yaml -p east=25 -p west=25.8 -p south=45 -p north=45.8` . 
 
 You can monitor the progress of the mosaic creation using the web user interface which will be running at `http://yourcluster:32019`, where `yourcluster` is the ip address or hostname of your cluster master node.
+
+## History
+
+SSTMP grew out of work at JPL primarily by Marshall Trautman, Charles Nainan, Natalie Gallegos. The Trek Team maintained
+an internal repo called "TrekDataPrep" which was a precursor of SSTMP. Aaron Curtis joined the project in late 2019,
+re-imagined and re-wrote TrekDataPrep as a system of Argo Workflows, and obtained permission from JPL to open source the
+project. For file size and security reasons, repository history before 2020-05-06 was removed before the first release
+of SSTMP. Although 98 of the 400 commits in the repo were preserved, the commit hashes were changed.
