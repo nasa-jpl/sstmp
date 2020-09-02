@@ -82,6 +82,7 @@ spec:
                 - name: prod-id
                   value: "{{item}}"
             withParam: "{{tasks.select-nacs.outputs.result}}"
+            # Should try and run mosrange even if one or more of the NACs fails to ingest 
             continueOn:
               failed: true
             dependencies:
@@ -96,9 +97,13 @@ spec:
               parameters:
                 - name: prod-id
                   value: "{{item}}"
+                  
             withParam: "{{tasks.select-nacs.outputs.result}}"
             dependencies:
               - mosrange
+            # Should try and run Equalizer even if one or more of the NACs fails to project 
+            continueOn:
+              failed: true
           - name: equalizer
             template: equalizer
             dependencies:
