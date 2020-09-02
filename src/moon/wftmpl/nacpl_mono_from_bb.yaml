@@ -117,7 +117,7 @@ spec:
             path: /tmp
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred

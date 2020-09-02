@@ -100,7 +100,7 @@ spec:
             path: /tmp
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
@@ -134,7 +134,7 @@ spec:
             path: /tmp/mos.map
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
@@ -148,7 +148,7 @@ spec:
             path: /tmp/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
@@ -183,7 +183,7 @@ spec:
             path: /tmp
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
@@ -216,7 +216,7 @@ spec:
             path: /tmp
             s3:
               bucket: my-bucket
-              endpoint: ***REMOVED***
+              endpoint: REMOVED
               insecure: true
               accessKeySecret:
                 name: my-minio-cred
