@@ -461,7 +461,7 @@ def bounding_box(*, west, east, south, north, plot=False, find_covering=True, re
     :return: A StereoPairSet
     """
 
-    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north, lon0_360=True)
+    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north, lonC0=True)
     imgs = ImageSearch(polygon=wkt.dumps(search_poly_shapely))
     pairset = StereoPairSet(imgs)
     filtered_pairset = pairset.filter_sun_geometry().filter_small_overlaps()

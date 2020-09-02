@@ -11,7 +11,7 @@ def bounding_box_mono(*, west:float, east:float, south:float, north:float, exclu
     Like find_stereo_pairs.bounding_box but finds individual NACs rather than stereo pairs. Useful for creating image
     mosaics when not also computing stereo.
     """
-    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north)
+    search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north, lonC0=True)
     imgs = find_stereo_pairs.ImageSearch(
         polygon=wkt.dumps(search_poly_shapely)
     )

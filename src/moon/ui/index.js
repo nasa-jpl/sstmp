@@ -182,13 +182,11 @@ const addFootprint = (nacId, status) => {
         .then(data => {
             for (let footprint in data.ODEResults.Products){
                 const footprintWkt = data.ODEResults.Products[footprint].Footprint_C0_geometry
-                console.log(footprintWkt)
                 const newFeat = new WKT().readFeature(footprintWkt)
                 const newFeatGeom = newFeat.getGeometry()
                 newFeatGeom.translate(180, 0)
                 newFeatGeom.transform('EPSG:4326', 'EPSG:3857')
                 newFeat.setId(nacId)
-                console.log(nacFootprintsSource)
                 nacFootprintsSource.addFeature(newFeat)
             }
         })

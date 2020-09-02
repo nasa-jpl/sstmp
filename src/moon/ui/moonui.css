@@ -30,6 +30,7 @@ body {
 
 .ol-mouse-position {
     font-family: Roboto,Montserrat, "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
+    top: 40px;
 }
 
 .ol-zoom {

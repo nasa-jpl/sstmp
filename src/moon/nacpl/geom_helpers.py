@@ -6,10 +6,10 @@ from matplotlib import pyplot
 import geopandas
 from typing import Optional
 
-def corners_to_quadrilateral(west, east, south, north, lon0_360=False):
+def corners_to_quadrilateral(west, east, south, north, lonC0=False):
     """
      
-    :param lon0_360: Boolean. If true, converts -180 to +180 longitudes to 0 to 360 
+    :param lonC0: Boolean. If true, expects -180 to +180 longitudes (centered on 0) and converts them to 0 to 360 
     :return: 
     """
     
@@ -24,7 +24,7 @@ def corners_to_quadrilateral(west, east, south, north, lon0_360=False):
     except AssertionError:
         print("Problem with latitude values. Please ensure south is less than north, and you are using -90 to 90 latitude.")
 
-    if lon0_360:
+    if lonC0:
         east, west = [lon + 180 for lon in (east, west)]
 
     return Polygon((
