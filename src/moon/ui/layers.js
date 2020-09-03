@@ -46,11 +46,10 @@ export const mosaicFootprints = new VectorLayer({
 })
 
 
-export const highlight = (workflowName)=>{
-    highlightedFeat = workflowName
+export const highlight = (highlightedFeatId)=>{
     boxDrawSource.changed()
-    if (highlightedFeat){
-        document.getElementsByClassName(highlightedFeat)[0].classList.add('highlighted')
+    if (highlightedFeatId){
+        document.getElementsByClassName(highlightedFeatId)[0].classList.add('highlighted')
     } else {
         let highlightedEls = document.getElementsByClassName('highlighted')
         if (highlightedEls.length > 0){
@@ -91,6 +90,7 @@ export const addMosaicJobListEntry = (workflow) => {
     for (const nac in nacData){
         if (nacData[nac].workflowName === workflow.metadata.name){
             const nacli = document.createElement('li')
+            nacli.className = nac
             // status and phase are kind of backwards thanks to Argo :-p
             nacli.innerText = `${nac}, ${nacData[nac].status}, ${nacData[nac].phase}`
             nacsul.appendChild(nacli)
