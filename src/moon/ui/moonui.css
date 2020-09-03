@@ -44,7 +44,7 @@ body {
     width: 400px;
 }
 
-#color-key {
+.color-key {
     display: flex;
     flex-wrap: wrap
 }

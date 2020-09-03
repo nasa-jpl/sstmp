@@ -4,6 +4,8 @@
 // {workflowName: {metadata: ..., boundingBox: {east: 1, south: , west: , north: }, status: {...}}}
 import {update} from "./index";
 import {arrayToObject} from "./util";
+import {nacStatusColors, mosStatusColors} from "./colors";
+ 
 
 export const workflowData = {}
 
@@ -23,20 +25,27 @@ export const attachToWorkflowEvents = (updateCallback) => {
                 const wfNodes = data.result.object.status.nodes
                 const topNode = wfNodes[wfName]
 
-                // Extract useful mosaic-level data from the response
-                workflowData[wfName] = {
-                    metadata: data.result.object.metadata,
-                    boundingBox: arrayToObject(topNode.inputs.parameters),
-                    status: data.result.object.status
-                }
-
                 // Collect useful image-level data from the response
                 const nodes = data.result.object.status.nodes
                 // The template names representing statuses where the first parameter is the nacid
-                const statusTemplateNames = ['download-nac', 'img2cub', 'calibrate']
                 for (let node in nodes) {
-                    // Check that the current node is one of the ones we're interested in
-                    if (statusTemplateNames.includes(nodes[node].templateName)) {
+                    // If the current node represents a whole mosaic TODO doesn't work properly for stereo
+                    if ((nodes[node].type === 'TaskGroup')
+                        || ['find-pairs','select-nacs','equalizer','noseam','cub2tif']
+                            .includes(nodes[node].templateName)) {
+                        if (!workflowData.hasOwnProperty(wfName) ||
+                            (Date.parse(nodes[node].startedAt) > Date.parse(workflowData[wfName].nodeStartedAt))){
+                            workflowData[wfName] = {
+                                metadata: data.result.object.metadata,
+                                status: nodes[node].templateName,
+                                phase: nodes[node].phase,
+                                nodeStartedAt: nodes[node].startedAt,
+                                boundingBox: arrayToObject(topNode.inputs.parameters)
+                            }
+                        }
+                    }
+                    // If the current node represents a nac image
+                    else if (Object.keys(nacStatusColors).includes(nodes[node].templateName)) {
                         let nacid = nodes[node].inputs.parameters[0].value
                         // If there's no status yet, or this node is newer than the one we used to set the status
                         if (!nacData.hasOwnProperty(nacid) ||

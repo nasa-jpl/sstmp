@@ -3,8 +3,8 @@ import {XYZ, Vector as VectorSource, Raster as RasterSource} from 'ol/source'
 import {Fill, Stroke, Style, Text} from "ol/style";
 import {nacHistAddData, setupHistBins} from "./nac_hist";
 import "./nac_hist"
-import {nacData} from "./rxdata";
-import {phaseColors, statusColors, createColorKey} from "./colors";
+import {nacData, workflowData} from "./rxdata";
+import {phaseColors, nacStatusColors, mosStatusColors} from "./colors";
 
 
 export const boxDrawSource = new VectorSource({wrapX: false})
@@ -25,23 +25,28 @@ const createStyle = (fillColor, strokeColor) => new Style({
     fill: new Fill({color: fillColor})
 })
 
-const mosaicBBstyleWlabel = (feature, resolution) => {
-    let featStyle
-    const mosaicBBstyles = {
-        mosaicBB: createStyle('rgba(255,255,255,0.4)', 'blue'),
-        mosaicBBhighlight: createStyle('rgb(255,255,255)', 'blue')
-    }
-    if (feature.id_ === highlightedFeat){
-        featStyle = mosaicBBstyles['mosaicBBhighlight']
-    } else {
-        featStyle = mosaicBBstyles['mosaicBB']
-    }
+const mosFootprintsStyle = (feature, resolution) => {
+    const featData=workflowData[feature.id_]
+    const statusColor = (feature.id_ === highlightedFeat ? mosStatusColors['highlighted'] : mosStatusColors[featData.status])
+    const phaseColor = phaseColors[featData.phase]
+    const featStyle = new Style({
+        stroke: new Stroke({color: phaseColor, width: 1}),
+        fill: new Fill({color: statusColor}),
+        text: new Text({
+            text: '',
+            font: `18px sans-serif`,
+            placement: 'point',
+            overflow: true,
+            fill: new Fill({color: 'blue'})
+        })
+    })
     featStyle.getText().setText(feature.id_)
     return featStyle
 }
+
 export const mosaicFootprints = new VectorLayer({
     source: boxDrawSource,
-    style: mosaicBBstyleWlabel,
+    style: mosFootprintsStyle,
     name: 'mosaicFootprints'
 })
 
@@ -74,7 +79,7 @@ export const addMosaicJobListEntry = (workflow) => {
     wfLink.className = workflow.metadata.name
     wfLink.href = `/workflows/${workflow.metadata.namespace}/${workflow.metadata.name}`
     wfLink.target = '_blank'
-    wfLink.innerText = `${workflow.metadata.name}, ${workflow.status.phase}`
+    wfLink.innerText = `${workflow.metadata.name}, ${workflow.status}, ${workflow.phase}`
     wfsummary.appendChild(wfLink)
 
     // Accordion
@@ -103,7 +108,7 @@ export const addMosaicJobListEntry = (workflow) => {
 
 const nacFootprintsStyle = (feature, resolution) => {
     const featData = nacData[feature.id_]
-    const statusColor = (feature.id_ === highlightedFeat ? statusColors['highlighted'] : statusColors[featData.status])
+    const statusColor = (feature.id_ === highlightedFeat ? nacStatusColors['highlighted'] : nacStatusColors[featData.status])
     const phaseColor = phaseColors[featData.phase]
     const featStyle = new Style({
         stroke: new Stroke({color: phaseColor, width: 1}),

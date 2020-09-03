@@ -20,8 +20,9 @@ import {
 } from "./layers";
 import {nacHist} from "./nac_hist";
 import {workflowData, nacData, attachToWorkflowEvents} from "./rxdata";
-import {statusColors, phaseColors, createColorKey} from "./colors";
-
+import {nacStatusColors, phaseColors, createColorKey} from "./colors";
+window.workflowData = workflowData
+window.nacData = nacData
 let mosaicGoal
 
 // map setup
