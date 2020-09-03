@@ -1,3 +1,6 @@
+# This is intended to contain common download & ingestion steps shared by different mosaic workflows.
+# At the moment, the mosaic workflows contain these steps, duplicated, and don't refer to this one yet.
+
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:

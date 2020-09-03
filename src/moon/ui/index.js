@@ -92,7 +92,7 @@ dragBox.on('boxend', (evt)=>{
 const mosaic_dropdown = document.getElementById('mosaic-type-select')
 mosaic_dropdown.onchange = (evt) => {
     const instructions = document.getElementById('instructions').firstElementChild 
-    if (['mono', 'stereo'].includes(evt.target.value)){
+    if (evt.target.value !== 'navigate'){
         moonmap.addInteraction(dragBox)
         instructions.innerHTML = 'Click and drag to create a mosaic'
     } else {

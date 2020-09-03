@@ -5,8 +5,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: nac-stereo-mos
-  generateName: nac-stereo-mos-
+  name: nac-mos-stereo
+  generateName: nac-mos-stereo-
   namespace: default
 spec:
   entrypoint: nac-mosaic

@@ -1,25 +1,12 @@
-# Solar System Treks Mosaic Pipeline NAC non-stereo orthomosaic workflow template w/ volumes
+# This is a mockup of nac-mos-mono.yaml for UI development purposes. The actual business logic in the templates has
+# been replaced with 20 second delays.
 
-# Process:
-#  select nacs
-#  download and convert nacs
-#      spiceinit
-#      lronaccal
-#      lronacecho
-#  create a mapfile which covers all nacs
-#      mosrange
-#      cam2map
-#      map2map
-#      equalizer
-#      noseam
-#  convert to geotiff
-#      cub2tif
 
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: nac-mono-mos
-  generateName: nac-mono-mos-
+  name: nac-mos-mono-uitest
+  generateName: nac-mos-mono-uitest-
   namespace: default
 spec:
   entrypoint: nac-mosaic
@@ -97,7 +84,7 @@ spec:
               parameters:
                 - name: prod-id
                   value: "{{item}}"
-                  
+
             withParam: "{{tasks.select-nacs.outputs.result}}"
             dependencies:
               - mosrange
@@ -144,9 +131,8 @@ spec:
         <<: *nacpl-container
         command: [bash]
         source: |
-          . activate nacpl_env
-          ls -1 /data/nac/monomos/{{workflow.name}}/*.cal.cub > /data/nac/monomos/{{workflow.name}}/mosrange.lst
-          mosrange from=/data/nac/monomos/{{workflow.name}}/mosrange.lst to=/data/nac/monomos/{{workflow.name}}/mos.map
+          sleep 10
+          echo "complete"
 
     #---------------------------
     # download and ingest
@@ -193,13 +179,8 @@ spec:
         <<: *nacpl-container
         command: [bash]
         source: |
-          . activate nacpl_env
-          if ! test -f /data/nac/{{inputs.parameters.prod-id}}.IMG
-          then
-            python /nacpl/download_NAC.py {{inputs.parameters.prod-id}} /data/nac
-          else
-            echo "Skipping step because output file already exists"
-          fi
+          sleep 10
+          echo "complete"
 
     # Convert IMG to ISIS cube if the cube doesn't already exist
     - name: img2cub
@@ -208,20 +189,12 @@ spec:
           - name: prod-id
       retryStrategy:
         limit: 3
-
       script:
         <<: *nacpl-container
         command: [bash]
         source: |
-          if ! test -f /data/nac/{{inputs.parameters.prod-id}}.cub
-          then
-            mkdir -p /data/nac/tmp/
-            echo "Running lronac2isis FROM=/data/nac/{{inputs.parameters.prod-id}}.IMG TO=/data/nac/tmp/{{inputs.parameters.prod-id}}.cub"
-            lronac2isis -v FROM=/data/nac/{{inputs.parameters.prod-id}}.IMG TO=/data/nac/tmp/{{inputs.parameters.prod-id}}.cub
-            mv /data/nac/tmp/{{inputs.parameters.prod-id}}.cub /data/nac/
-          else
-            echo "Skipping step because output file already exists"
-          fi
+          sleep 10
+          echo "complete"
 
     # Run spiceinit, lronaccal, and lronacecho and produce a .cal.cub if one doesn't already exist.
     # This step also creates a directory monomos/{{workflow.name}} with files specific to this workflow instance.
@@ -235,18 +208,8 @@ spec:
         <<: *nacpl-container
         command: [bash]
         source: |
-          if ! test -f /data/nac/{{inputs.parameters.prod-id}}.cal.cub
-          then
-            spiceinit FROM=/data/nac/{{inputs.parameters.prod-id}}.cub web=yes
-            lronaccal FROM=/data/nac/{{inputs.parameters.prod-id}}.cub TO=/tmp/{{inputs.parameters.prod-id}}.cal.cub
-            lronacecho FROM=/tmp/{{inputs.parameters.prod-id}}.cal.cub TO=/data/nac/tmp/{{inputs.parameters.prod-id}}.cal.cub
-            mv /data/nac/tmp/{{inputs.parameters.prod-id}}.cal.cub /data/nac/{{inputs.parameters.prod-id}}.cal.cub
-          else
-            echo "Skipping step because output file already exists"
-          fi
-          mkdir -p /data/nac/monomos/{{workflow.name}}
-          # ln -s /data/nac/monomos/{{inputs.parameters.prod-id}}.cal.cub /data/nac/monomos/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
-          cp /data/nac/{{inputs.parameters.prod-id}}.cal.cub /data/nac/monomos/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub
+          sleep 10
+          echo "complete"
 
     - name: cam2map
       inputs:
@@ -256,50 +219,29 @@ spec:
         <<: *nacpl-container
         command: [ bash ]
         source: |
-          . activate nacpl_env
-          mkdir -p /data/nac/monomos/{{workflow.name}}/map
-          cam2map \
-            from=/data/nac/monomos/{{workflow.name}}/{{inputs.parameters.prod-id}}.cal.cub \
-            to=/data/nac/monomos/{{workflow.name}}/map/{{inputs.parameters.prod-id}}.map.cub   \
-            matchmap=yes \
-            map=/data/nac/monomos/{{workflow.name}}/mos.map
+          sleep 10
+          echo "complete"
 
     - name: equalizer
       script:
         <<: *nacpl-container
         command: [ bash ]
         source: |
-          . activate nacpl_env
-          ls -1 /data/nac/monomos/{{workflow.name}}/map/*.map.cub > /tmp/fromlist.lis
-          equalizer fromlist=/tmp/fromlist.lis outstats=/data/nac/monomos/{{workflow.name}}/equ_stats.txt
-          mkdir -p /data/nac/monomos/{{workflow.name}}/equalized
-          mv /data/nac/monomos/{{workflow.name}}/map/*.equ.cub /data/nac/monomos/{{workflow.name}}/equalized/
+          sleep 10
+          echo "complete"
 
     - name: noseam
       script:
         <<: *nacpl-container
         command: [ bash ]
         source: |
-          . activate nacpl_env
-          ls -1 /data/nac/monomos/{{workflow.name}}/equalized/*.equ.cub > /tmp/fromlist.lis
-          noseam from=/tmp/fromlist.lis to=/data/nac/monomos/{{workflow.name}}/mos.cub samples=333 lines=333
-#      outputs:
-#        artifacts:
-#          - name: /{{workflow.name}}/moscub
-#            path: /data/nac/monomos/{{workflow.name}}/mos.cub
-#            archive:
-#              none: {}
+          sleep 10
+          echo "complete"
 
     - name: cub2tif
       script:
         <<: *nacpl-container
         command: [ bash ]
         source: |
-          . activate nacpl_env
-          gdal_translate /data/nac/monomos/{{workflow.name}}/mos.cub /data/nac/monomos/{{workflow.name}}/mos.tif
-      outputs:
-        artifacts:
-          - name: mostif
-            path: /data/nac/monomos/{{workflow.name}}/mos.tif
-            archive:
-              none: {}
+          sleep 10
+          echo "complete"

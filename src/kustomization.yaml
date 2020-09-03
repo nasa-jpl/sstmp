@@ -5,9 +5,9 @@ resources:
   - volumes.yaml
   - moon/ui/k8s-moonui.yaml
   - ingress.yaml
-  - moon/wftmpl/nacpl_stereo_vol.yaml
-  - moon/wftmpl/nacpl_mono_vol.yaml
-  - moon/wftmpl/ui_test.yaml
+  - moon/wftmpl/nac-mos-mono.yaml
+  - moon/wftmpl/nac-mos-stereo.yaml
+  - moon/wftmpl/nac-mos-mono-uitest.yaml
 
 patches:
   - argo-configmap.yaml
