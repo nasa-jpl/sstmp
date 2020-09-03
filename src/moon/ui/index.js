@@ -20,6 +20,7 @@ import {
 } from "./layers";
 import {nacHist} from "./nac_hist";
 import {workflowData, nacData, attachToWorkflowEvents} from "./rxdata";
+import {statusColors, phaseColors, createColorKey} from "./colors";
 
 let mosaicGoal
 
@@ -192,4 +193,6 @@ const addFootprint = (nacId, status) => {
         })
 }
 
+
 attachToWorkflowEvents(update)
+createColorKey()
