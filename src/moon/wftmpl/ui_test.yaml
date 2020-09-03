@@ -1,0 +1,247 @@
+# This is a mockup of nacpl_mono_vol.yaml for UI development purposes. The actual business logic in the templates has
+# been replaced with 20 second delays.
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: nac-mono-mos-test
+  generateName: nac-mono-mos-test-
+  namespace: default
+spec:
+  entrypoint: nac-mosaic
+  volumes:
+    - name: sstmp-data
+      persistentVolumeClaim:
+        claimName: sstmp-data # This was set up in volumes.yaml
+  parallelism: 10
+  templates:
+
+    #-------------------------------------------------
+    # Dummy template with reusable parts for
+    # references in stereo templates. Not to be run.
+    #-------------------------------------------------
+    - name: dummy-stereo-template
+      inputs: &right-left-inps
+        parameters:
+          - name: right-prod-id
+          - name: left-prod-id
+      container: &nacpl-container
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: sstmp-data  # Should have been created in volumes.yaml
+            mountPath: /data/nac
+
+    #---------------------------
+    # top-level workflow graph
+    #---------------------------
+    - name: nac-mosaic
+      inputs:
+        #FIXME get rid of these value 0s. Want to be able to submit the WorkflowTemplate
+        parameters:
+          - name: west
+            value: 0
+          - name: east
+            value: 0
+          - name: south
+            value: 0
+          - name: north
+            value: 0
+      dag:
+        tasks:
+          - name: select-nacs
+            template: select-nacs
+            arguments:
+              parameters:
+                - name: west
+                  value: "{{inputs.parameters.west}}"
+                - name: east
+                  value: "{{inputs.parameters.east}}"
+                - name: south
+                  value: "{{inputs.parameters.south}}"
+                - name: north
+                  value: "{{inputs.parameters.north}}"
+          - name: dl-ingest-nac
+            template: dl-ingest-nac
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{item}}"
+            withParam: "{{tasks.select-nacs.outputs.result}}"
+            # Should try and run mosrange even if one or more of the NACs fails to ingest 
+            continueOn:
+              failed: true
+            dependencies:
+              - select-nacs
+          - name: mosrange
+            template: mosrange
+            dependencies:
+              - dl-ingest-nac
+          - name: cam2map
+            template: cam2map
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{item}}"
+
+            withParam: "{{tasks.select-nacs.outputs.result}}"
+            dependencies:
+              - mosrange
+            # Should try and run Equalizer even if one or more of the NACs fails to project 
+            continueOn:
+              failed: true
+          - name: equalizer
+            template: equalizer
+            dependencies:
+              - cam2map
+          - name: noseam
+            template: noseam
+            dependencies:
+              - equalizer
+          - name: cub2tif
+            template: cub2tif
+            dependencies:
+              - noseam
+
+    #----------------------
+    # Low-level templates
+    #----------------------
+    - name: select-nacs
+      inputs:
+        parameters:
+          - name: west
+          - name: east
+          - name: south
+          - name: north
+      script:
+        image: lmmp-local/lmmp-container
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        source: |
+          . activate nacpl_env
+          python /nacpl/find_nacs_mono.py       \
+            --west={{inputs.parameters.west}}   \
+            --east={{inputs.parameters.east}}   \
+            --south={{inputs.parameters.south}} \
+            --north={{inputs.parameters.north}}
+
+    - name: mosrange
+      script:
+        <<: *nacpl-container
+        command: [bash]
+        source: |
+          sleep 10
+          echo "complete"
+
+    #---------------------------
+    # download and ingest
+    #---------------------------
+    # Given a nac product id prod-id, initiate workflow download and injest NAC into ISIS, creating:
+    # - Downloaded .IMG file in /data/nac/{{prod-id}}
+    # - ISIS-injested .cub file in /data/nac/{{prod-id}}
+    - name: dl-ingest-nac
+      inputs:
+        parameters:
+          - name: prod-id
+      dag:
+        tasks:
+          - name: download-nac
+            template: download-nac
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
+          - name: img2cub
+            template: img2cub
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
+            dependencies: [download-nac]
+          - name: calibrate
+            template: calibrate
+            arguments:
+              parameters:
+                - name: prod-id
+                  value: "{{inputs.parameters.prod-id}}"
+            dependencies: [img2cub]
+
+    # Download a NAC image if doesn't exist and store to / on sstmp-data volume
+    # Script downloads to a temporary file and then moves it into place
+    - name: download-nac
+      inputs:
+        parameters:
+          - name: prod-id
+      retryStrategy:
+        limit: 3
+      script:
+        <<: *nacpl-container
+        command: [bash]
+        source: |
+          sleep 10
+          echo "complete"
+
+    # Convert IMG to ISIS cube if the cube doesn't already exist
+    - name: img2cub
+      inputs:
+        parameters:
+          - name: prod-id
+      retryStrategy:
+        limit: 3
+      script:
+        <<: *nacpl-container
+        command: [bash]
+        source: |
+          sleep 10
+          echo "complete"
+
+    # Run spiceinit, lronaccal, and lronacecho and produce a .cal.cub if one doesn't already exist.
+    # This step also creates a directory monomos/{{workflow.name}} with files specific to this workflow instance.
+    - name: calibrate
+      inputs:
+        parameters:
+          - name: prod-id
+      retryStrategy:
+        limit: 3
+      script:
+        <<: *nacpl-container
+        command: [bash]
+        source: |
+          sleep 10
+          echo "complete"
+
+    - name: cam2map
+      inputs:
+        parameters:
+          - name: prod-id
+      script:
+        <<: *nacpl-container
+        command: [ bash ]
+        source: |
+          sleep 10
+          echo "complete"
+
+    - name: equalizer
+      script:
+        <<: *nacpl-container
+        command: [ bash ]
+        source: |
+          sleep 10
+          echo "complete"
+
+    - name: noseam
+      script:
+        <<: *nacpl-container
+        command: [ bash ]
+        source: |
+          sleep 10
+          echo "complete"
+
+    - name: cub2tif
+      script:
+        <<: *nacpl-container
+        command: [ bash ]
+        source: |
+          sleep 10
+          echo "complete"
