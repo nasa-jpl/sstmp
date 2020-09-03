@@ -104,7 +104,7 @@ mosaic_dropdown.onchange = (evt) => {
 const createMosaic = (mosaicExtent, mosaicType) => {
     const precision = 6
     // First, download the workflowtemplate for mosaics
-    fetch(`/api/v1/workflow-templates/default/nac-${mosaicType}-mos`).then(function (response) {
+    fetch(`/api/v1/workflow-templates/default/nac-mos-${mosaicType}`).then(function (response) {
         return response.json();
     }).then((tmpl)=>{
         tmpl.spec.arguments.parameters = [
