@@ -1,8 +1,6 @@
 // Todo: probably makes sense to combine nac and mos status colors into one object
 
 export const nacStatusColors = {
-    'select-nacs':     'rgba(207,196,196,0.4)',
-    'find-pairs':      'rgba(255, 72,  0,0.4)',
     'download-nac':    'rgba(129,183, 81,0.4)',
     'img2cub':         'rgba( 85,148,135,0.4)',
     'calibrate':       'rgba(200,  0,255,0.4)',

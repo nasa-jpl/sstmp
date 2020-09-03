@@ -52,15 +52,18 @@ export const mosaicFootprints = new VectorLayer({
 
 
 export const highlight = (highlightedFeatId)=>{
-    boxDrawSource.changed()
     if (highlightedFeatId){
         document.getElementsByClassName(highlightedFeatId)[0].classList.add('highlighted')
+        highlightedFeat = highlightedFeatId
     } else {
         let highlightedEls = document.getElementsByClassName('highlighted')
         if (highlightedEls.length > 0){
             highlightedEls[0].classList.remove('highlighted')
         }
     }
+    // Should probably avoid calling these if the state hasn't changed
+    boxDrawSource.changed()
+    nacFootprintsSource.changed()
 }
 
 /**
