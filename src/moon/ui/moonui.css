@@ -71,3 +71,7 @@ p {
 #nacAvailHist{
     display: none;
 }
+
+.ol-mouse-position{
+    top: 40px !important;
+}
