@@ -4,7 +4,7 @@ import {Fill, Stroke, Style, Text} from "ol/style";
 import {nacHistAddData, setupHistBins} from "./nac_hist";
 import "./nac_hist"
 import {nacData} from "./rxdata";
-import {phaseColors, statusColors} from "./colors";
+import {phaseColors, statusColors, createColorKey} from "./colors";
 
 
 export const boxDrawSource = new VectorSource({wrapX: false})

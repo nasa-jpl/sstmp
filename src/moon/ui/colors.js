@@ -16,3 +16,19 @@ export const phaseColors = {
     'Succeeded': '#18BE94',
     'Highlight': 'red',
 }
+
+export const createColorKey = ()=>{
+    const key = document.getElementById('colorKey')
+    for (let color in statusColors){
+        const newDiv = document.createElement('div')
+        newDiv.setAttribute('style', `background: ${statusColors[color]}`)
+        newDiv.innerText = color
+        key.appendChild(newDiv)
+    }
+    for (let color in phaseColors){
+        const newDiv = document.createElement('div')
+        newDiv.setAttribute('style', `border: thin ${statusColors[color]} solid`)
+        newDiv.innerText = color
+        key.appendChild(newDiv)
+    }
+}
