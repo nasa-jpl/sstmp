@@ -4,13 +4,14 @@ import {Fill, Stroke, Style, Text} from "ol/style";
 import {nacHistAddData, setupHistBins} from "./nac_hist";
 import "./nac_hist"
 import {nacData} from "./rxdata";
+import {phaseColors, statusColors} from "./colors";
 
 
 export const boxDrawSource = new VectorSource({wrapX: false})
 export const nacFootprintsSource = new VectorSource({wrapX: false})
 
-// highlightedMosaicBB is a string containing the id of the currently highlighted mosaic
-let highlightedMosaicBB = null
+// highlightedFeat is a string containing the id of the currently highlighted mosaic or nac
+let highlightedFeat = null
 
 const createStyle = (fillColor, strokeColor) => new Style({
     text: new Text({
@@ -30,7 +31,7 @@ const mosaicBBstyleWlabel = (feature, resolution) => {
         mosaicBB: createStyle('rgba(255,255,255,0.4)', 'blue'),
         mosaicBBhighlight: createStyle('rgb(255,255,255)', 'blue')
     }
-    if (feature.id_ === highlightedMosaicBB){
+    if (feature.id_ === highlightedFeat){
         featStyle = mosaicBBstyles['mosaicBBhighlight']
     } else {
         featStyle = mosaicBBstyles['mosaicBB']
@@ -46,10 +47,10 @@ export const mosaicFootprints = new VectorLayer({
 
 
 export const highlight = (workflowName)=>{
-    highlightedMosaicBB = workflowName
+    highlightedFeat = workflowName
     boxDrawSource.changed()
-    if (highlightedMosaicBB){
-        document.getElementsByClassName(highlightedMosaicBB)[0].classList.add('highlighted')
+    if (highlightedFeat){
+        document.getElementsByClassName(highlightedFeat)[0].classList.add('highlighted')
     } else {
         let highlightedEls = document.getElementsByClassName('highlighted')
         if (highlightedEls.length > 0){
@@ -101,16 +102,14 @@ export const addMosaicJobListEntry = (workflow) => {
 
 
 const nacFootprintsStyle = (feature, resolution) => {
-    const nacFootprintStyles = {
-        Pending: createStyle('rgba(255,255,255,0.4)','grey'),
-        PendingHighlight: createStyle('rgba(255,255,255,1)','grey'),
-        Running: createStyle('rgba(255,255,255,0.4)','yellow'),
-        RunningHighlight: createStyle('rgba(255,255,255,1)','yellow'),
-        Succeeded: createStyle('rgba(255,255,255,0.4)','green'),
-        SucceededHighlight: createStyle('rgba(255,255,255,1)','green')
-    }
     const featData = nacData[feature.id_]
-    return nacFootprintStyles[featData.phase]
+    const statusColor = (feature.id_ === highlightedFeat ? statusColors['highlighted'] : statusColors[featData.status])
+    const phaseColor = phaseColors[featData.phase]
+    const featStyle = new Style({
+        stroke: new Stroke({color: phaseColor, width: 1}),
+        fill: new Fill({color: statusColor})
+    })
+    return featStyle
 }
 
 export const nacFootprintsLayer = new VectorLayer({
