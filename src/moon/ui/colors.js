@@ -13,21 +13,22 @@ export const statusColors = {
 export const phaseColors = {
     'Pending':   'yellow',
     'Running':   '#0DADEA',
-    'Succeeded': '#18BE94',
-    'Highlight': 'red',
+    'Succeeded': '#18BE94'
 }
 
 export const createColorKey = ()=>{
-    const key = document.getElementById('colorKey')
+    const key = document.getElementById('color-key')
     for (let color in statusColors){
-        const newDiv = document.createElement('div')
+        const newDiv = document.createElement('span')
+        newDiv.className = 'color-legend-entry'
         newDiv.setAttribute('style', `background: ${statusColors[color]}`)
         newDiv.innerText = color
         key.appendChild(newDiv)
     }
     for (let color in phaseColors){
-        const newDiv = document.createElement('div')
-        newDiv.setAttribute('style', `border: thin ${statusColors[color]} solid`)
+        const newDiv = document.createElement('span')
+        newDiv.className = 'color-legend-entry'
+        newDiv.setAttribute('style', `border: thin ${phaseColors[color]} solid`)
         newDiv.innerText = color
         key.appendChild(newDiv)
     }

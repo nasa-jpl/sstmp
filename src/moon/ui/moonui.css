@@ -44,6 +44,16 @@ body {
     width: 400px;
 }
 
+#color-key {
+    display: flex;
+    flex-wrap: wrap
+}
+
+.color-legend-entry {
+    padding: 3px;
+    margin: 3px;
+}
+
 .rightside-list{
     margin: 10px;
     background: #808080d0;
