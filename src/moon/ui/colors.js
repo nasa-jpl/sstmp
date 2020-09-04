@@ -5,18 +5,21 @@ export const nacStatusColors = {
     'img2cub':         'rgba( 85,148,135,0.4)',
     'calibrate':       'rgba(200,  0,255,0.4)',
     'cam2map':         'rgba(255,  0,161,0.4)',
-    'highlighted':     'rgba(255,  0, 21,0.4)'
+    'highlighted':     'rgba(255,  0, 21,  1)'
 } 
 
 export const mosStatusColors = {
     'select-nacs':     'rgba(207,196,196,0.4)',
+    'find-pairs':      'rgba(255,200,  0,0.4)',     // stereo-only
     'dl-ingest-nac':   'rgba(255, 72,  0,0.4)',
     'mosrange':        'rgba(129,183, 81,0.4)',
     'equalizer':       'rgba( 85,148,135,0.4)',
     'cam2map':         'rgba(200,  0,255,0.4)',
     'noseam':          'rgba(255,  0,161,0.4)',
     'cub2tif':         'rgba(255,200,  0,0.4)',
-    'highlighted':     'rgba(255,  0, 21,0.4)'   
+    
+    // UI
+    'highlighted':     'rgba(255,  0, 21, 1)',    
 }
 
 export const phaseColors = {

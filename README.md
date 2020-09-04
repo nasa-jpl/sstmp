@@ -50,6 +50,16 @@ Otherwise, you may want to follow the [more detailed instructions which start fr
 
 <a id="creating_a_mosaic" name="creating_a_mosaic"></a>
 ## Creating a mosaic
+
+### Using the SSTMP web interface
+
+Please see this video:
+
+[<img src="https://img.youtube.com/vi/HfhUU9Abe4c/hqdefault.jpg" width="50%">](https://youtu.be/HfhUU9Abe4c)
+
+
+### Using the CLI
+
 Let's say you want a DEM and orthoimage mosaic of a bounding box which goes from 25.8 degrees easting to 25 degrees easting, and from 45 degrees north to 45.8 degrees north.
 
 After following [setup](#setup) above, Run `argo submit NAC_pl_workflow.yaml -p east=25 -p west=25.8 -p south=45 -p north=45.8` . 
