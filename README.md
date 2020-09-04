@@ -8,7 +8,7 @@
 
 ## Description
 
-SSTMP creates high-resolution lunar DEMs and orthoimage mosaics of Earth's moon for requested areas. Given a bounding box, it will select, fetch, injest, stereo reconstruct, and merge raw imagery from the Lunar Reconnaissance Orbiter's (LRO) Narrow Angle Camera (NAC) to make your mosaic. It can be configured to use any number of real or virtual computers for processing. NAC Mosaic Pipeline uses laser altimeter data from LRO's Lunar Orbiter Laser Altimeter (LOLA) for alignment before merging the mosaics.
+SSTMP creates high-resolution lunar DEMs and orthoimage mosaics of Earth's moon for requested areas. Given a bounding box, it will select, fetch, ingest, stereo reconstruct, and merge raw imagery from the Lunar Reconnaissance Orbiter's (LRO) Narrow Angle Camera (NAC) to make your mosaic. It can be configured to use any number of real or virtual computers for processing. NAC Mosaic Pipeline uses laser altimeter data from LRO's Lunar Orbiter Laser Altimeter (LOLA) for alignment before merging the mosaics.
 
 SSTMP includes:
  - An Argo workflow that supervises all of the processing for a stereo (nac-mos-stereo.yaml) or mono (nac-mos-mono.yaml) mosaic.
@@ -49,7 +49,7 @@ If you already have the [requirements](#requirements),
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 
 <a id="creating_a_mosaic" name="creating_a_mosaic"></a>
-## Creating a mosaic
+## Creating a lunar mosaic
 
 ### Using the SSTMP web interface
 
@@ -58,13 +58,13 @@ Please see this video:
 [<img src="https://img.youtube.com/vi/HfhUU9Abe4c/hqdefault.jpg" width="50%">](https://youtu.be/HfhUU9Abe4c)
 
 
-### Using the CLI
+### Using the command line interface
 
 Let's say you want a DEM and orthoimage mosaic of a bounding box which goes from 25.8 degrees easting to 25 degrees easting, and from 45 degrees north to 45.8 degrees north.
 
 After following [setup](#setup) above, Run `argo submit NAC_pl_workflow.yaml -p east=25 -p west=25.8 -p south=45 -p north=45.8` . 
 
-You can monitor the progress of the mosaic creation using the web user interface which will be running at `http://yourcluster:32019`, where `yourcluster` is the ip address or hostname of your cluster master node.
+You can monitor the progress of the mosaic creation using the map interface which will be running at `http://yourcluster/moon`, or the Argo interface at `http://yourcluster/workflows`, where `yourcluster` is the ip address or hostname of your cluster master node.
 
 ## History
 
