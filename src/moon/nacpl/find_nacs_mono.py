@@ -15,7 +15,7 @@ def bounding_box_mono(*, west:float, east:float, south:float, north:float, exclu
     imgs = find_stereo_pairs.ImageSearch(
         polygon=wkt.dumps(search_poly_shapely)
     )
-    imgs.results = imgs.results.filter_sun_geometry()
+    # imgs.results = imgs.results.filter_sun_geometry()
     imgs.results = imgs.results.drop(exclude)
     imgs.results['geometry'] = imgs.results.footprint_geometry
     # Shrink all the footprints so that there will be overlap in final steps of mosaic creation
