@@ -151,9 +151,9 @@ spec:
     #---------------------------
     # download and ingest
     #---------------------------
-    # Given a nac product id prod-id, initiate workflow download and injest NAC into ISIS, creating:
+    # Given a nac product id prod-id, initiate workflow download and ingest NAC into ISIS, creating:
     # - Downloaded .IMG file in /data/nac/{{prod-id}}
-    # - ISIS-injested .cub file in /data/nac/{{prod-id}}
+    # - ISIS-ingested .cub file in /data/nac/{{prod-id}}
     - name: dl-ingest-nac
       inputs:
         parameters:

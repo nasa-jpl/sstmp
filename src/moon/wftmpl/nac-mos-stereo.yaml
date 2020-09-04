@@ -123,25 +123,25 @@ spec:
     # - orthophoto at /data/nac/{{left-prod-id}}xx{{right-prod-id}}-median-DRG.tif
     # Also create some useful extra products:
     # - Downloaded .IMG files in /data/nac/
-    # - ISIS-injested .cub files in /data/nac/
+    # - ISIS-ingested .cub files in /data/nac/
     # - Intermediate data products in /data/nac/{{left-prod-id}}xx{{right-prod-id}}
     - name: nac-stereo
       parallelism: 3
       inputs: *left-right-arguments-from-inputs
       dag:
         tasks:
-          - name: dl-injest-right
-            template: dl-injest-nac
+          - name: dl-ingest-right
+            template: dl-ingest-nac
             arguments:
               parameters: [{name: prod-id, value: "{{inputs.parameters.right-prod-id}}"}]
-          - name: dl-injest-left
-            template: dl-injest-nac
+          - name: dl-ingest-left
+            template: dl-ingest-nac
             arguments:
               parameters: [{name: prod-id, value: "{{inputs.parameters.left-prod-id}}"}]
           - name: map-project
             template: map-project
             arguments: *left-right-arguments-from-inputs
-            dependencies: [dl-injest-right, dl-injest-left]
+            dependencies: [dl-ingest-right, dl-ingest-left]
           - name: stereo
             template: stereo
             arguments: *left-right-arguments-from-inputs
@@ -163,10 +163,10 @@ spec:
             arguments: *left-right-arguments-from-inputs
             dependencies: [align]
 
-    # Given a nac product id prod-id, initiate workflow download and injest NAC into ISIS, creating:
+    # Given a nac product id prod-id, initiate workflow download and ingest NAC into ISIS, creating:
     # - Downloaded .IMG file in /data/nac/{{prod-id}}
-    # - ISIS-injested .cub file in /data/nac/{{prod-id}}
-    - name: dl-injest-nac
+    # - ISIS-ingested .cub file in /data/nac/{{prod-id}}
+    - name: dl-ingest-nac
       inputs:
         parameters:
           - name: prod-id

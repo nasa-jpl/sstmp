@@ -8,10 +8,10 @@
 
 ## Description
 
-SSTMP creates a high-resolution lunar DEM and orthoimage mosaic of Earth's moon for a requested area. Given a bounding box, it will select, fetch, injest, stereo reconstruct, and merge raw imagery from the Lunar Reconnaissance Orbiter's (LRO) Narrow Angle Camera (NAC) to make your mosaic. It can be configured to use any number of real or virtual computers for processing. NAC Mosaic Pipeline uses laser altimeter data from LRO's Lunar Orbiter Laser Altimeter (LOLA) for alignment before merging the mosaics.
+SSTMP creates high-resolution lunar DEMs and orthoimage mosaics of Earth's moon for requested areas. Given a bounding box, it will select, fetch, injest, stereo reconstruct, and merge raw imagery from the Lunar Reconnaissance Orbiter's (LRO) Narrow Angle Camera (NAC) to make your mosaic. It can be configured to use any number of real or virtual computers for processing. NAC Mosaic Pipeline uses laser altimeter data from LRO's Lunar Orbiter Laser Altimeter (LOLA) for alignment before merging the mosaics.
 
 SSTMP includes:
- - An Argo workflow that supervises all of the processing (nacpl_workflow_basic.yaml)
+ - An Argo workflow that supervises all of the processing for a stereo (nac-mos-stereo.yaml) or mono (nac-mos-mono.yaml) mosaic.
  - A Dockerfile defining a container which can do any of the processing steps (Dockerfile)
  - A python package with scripts needed for processing (nacpl/)
  - A conda environment needed for processing (nacpl_env.yml)

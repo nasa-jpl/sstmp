@@ -5,8 +5,6 @@ Aaron Curtis
 """
 
 # TODO check that none of the filters modify self.pairs when inplace is False
-
-# after upgrade to python3:
 # TODO add type hinting
 # TODO make addition of inplace parameter into a decorator
 
