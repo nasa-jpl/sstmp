@@ -52,6 +52,7 @@ export const mosaicFootprints = new VectorLayer({
 
 
 export const highlight = (highlightedFeatId)=>{
+    highlightedFeat = highlightedFeatId
     if (highlightedFeatId){
         document.getElementsByClassName(highlightedFeatId)[0].classList.add('highlighted')
         highlightedFeat = highlightedFeatId
