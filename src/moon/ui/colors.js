@@ -41,13 +41,13 @@ export const createColorKey = ()=>{
         newDiv.className = 'color-legend-entry'
         newDiv.setAttribute('style', `background: ${nacStatusColors[color]}`)
         newDiv.innerText = color
-        document.getElementById('mos-color-key').appendChild(newDiv)
+        document.getElementById('nac-color-key').appendChild(newDiv)
     }
     for (let color in mosStatusColors){
         const newDiv = document.createElement('span')
         newDiv.className = 'color-legend-entry'
         newDiv.setAttribute('style', `background: ${mosStatusColors[color]}`)
         newDiv.innerText = color
-        document.getElementById('nac-color-key').appendChild(newDiv)
+        document.getElementById('mos-color-key').appendChild(newDiv)
     }
 }
