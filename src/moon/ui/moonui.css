@@ -85,3 +85,21 @@ p {
 .ol-mouse-position{
     top: 40px !important;
 }
+
+/* Styles for the sstmp-collapsible custom component */
+/* Could possibly be moved into collapsible.js */
+sstmp-collapsible div.rightside-list > details > summary {
+    list-style: none;
+}
+sstmp-collapsible div.rightside-list > details > summary::-webkit-details-marker {
+    display: none;
+}
+
+sstmp-collapsible .toggleIndicator {
+    position: absolute;
+    right: 20px;
+}
+
+sstmp-collapsible details[open] summary .toggleIndicator{
+    transform: rotate(-90deg);
+}

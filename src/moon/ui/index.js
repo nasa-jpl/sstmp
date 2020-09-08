@@ -20,9 +20,9 @@ import {
 } from "./layers";
 import {nacHist} from "./nac_hist";
 import {workflowData, nacData, attachToWorkflowEvents} from "./rxdata";
-import {nacStatusColors, phaseColors, createColorKey} from "./colors";
-window.workflowData = workflowData
-window.nacData = nacData
+import {createColorKey} from "./colors";
+import {Collapsible} from "./collapsible";
+
 let mosaicGoal
 
 // map setup
@@ -37,8 +37,10 @@ export const moonmap = new Map({
     })
 });
 
-// expose the map as a global so savvy users can interact with it using dev tools
+// expose some globals so savvy users can interact with them using dev tools
 window.moonmap = moonmap
+window.workflowData = workflowData
+window.nacData = nacData
 
 moonmap.on('rendercomplete', ()=>{
     if (document.getElementById('nac_avail').checked) {
@@ -194,6 +196,6 @@ const addFootprint = (nacId, status) => {
         })
 }
 
-
+customElements.define('sstmp-collapsible', Collapsible)
 attachToWorkflowEvents(update)
 createColorKey()

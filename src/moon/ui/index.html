@@ -11,9 +11,18 @@
 <div id="title"><h1>Solar System Treks Mosaic Pipeline v0.4</h1></div>
 
 <div id="right-panel">
-
-    <div id="new-mosaic" class="rightside-list">
-        <h2>Tools</h2>
+    <template id="collapsible-tmpl">
+        <div class="rightside-list">
+            <details>
+                <summary>
+                    <h2 class="title">Title</h2>
+                </summary>
+                <div class="content"></div>
+            </details>
+        </div>
+    </template>
+    
+    <sstmp-collapsible title="Tools" id="new-mosaic">
         <p>
             <select name="mosaic-type" id="mosaic-type-select">
                 <option value="navigate">Pan / zoom</option>
@@ -22,19 +31,14 @@
                 <option value="mono-uitest">New mono mosaic, test mode</option>
             </select>
         </p>
-    </div>
+    </sstmp-collapsible>
 
-    <div id="workflow-list" class="rightside-list">
-        <h2>Mosaic jobs</h2>
-        <div>
-            <div id="workflow-list-content">
-            </div>
+    <sstmp-collapsible title="Mosaic jobs">
+        <div id="workflow-list-content">
         </div>
-    </div>
+    </sstmp-collapsible>
 
-    <div id="layers" class="rightside-list">
-        <h2>Layers</h2>
-        <div>
+    <sstmp-collapsible id="layers" title="Layers">
             <div id="layer-selector">
                 <input type="checkbox" name="layer-chbx" id="hillshade" checked>
                 <label for="hillshade">Moon hillshade</label>
@@ -51,21 +55,22 @@
                 <input type="checkbox" name="layer-chbx" id="nacFootprints" checked>
                 <label for="nacFootprints">NAC footprints</label>
             </div>
-        </div>
-    </div>
-    <div id="color-key-container" class="rightside-list">
-        <h2>Legend</h2>
+    </sstmp-collapsible>
+    
+    <sstmp-collapsible id="color-key-container" title="Legend">
         <div id="phase-color-key" class="color-key"></div>
         <h3>Mosaic footprint steps</h3>
         <div id="mos-color-key" class="color-key"></div>
         <h3>NAC footprint steps</h3>
         <div id="nac-color-key" class="color-key"></div>
-    </div>
+    </sstmp-collapsible>
+    
     <div id="nacAvailHist" class="rightside-list">
         <h2>NAC availability histogram</h2>
         <canvas id="hist"></canvas>
         </div>
     </div>
+
 </div>
 
 <div id="histContainer">
