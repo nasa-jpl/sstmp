@@ -13,18 +13,6 @@ export const nacFootprintsSource = new VectorSource({wrapX: false})
 // highlightedFeat is a string containing the id of the currently highlighted mosaic or nac
 let highlightedFeat = null
 
-const createStyle = (fillColor, strokeColor) => new Style({
-    text: new Text({
-        text: '',
-        font: `18px sans-serif`,
-        placement: 'point',
-        overflow: true,
-        fill: new Fill({color: 'blue'})
-    }),
-    stroke: new Stroke({color: strokeColor, width: 1}),
-    fill: new Fill({color: fillColor})
-})
-
 const mosFootprintsStyle = (feature, resolution) => {
     const featData=workflowData[feature.id_]
     const statusColor = (feature.id_ === highlightedFeat ? mosStatusColors['highlighted'] : mosStatusColors[featData.status])
