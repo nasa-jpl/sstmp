@@ -55,7 +55,7 @@ Otherwise, you may want to follow the [more detailed instructions which start fr
 
 Please see this video:
 
-[<img src="https://img.youtube.com/vi/HfhUU9Abe4c/hqdefault.jpg" width="50%">](https://youtu.be/HfhUU9Abe4c)
+[<img src="https://img.youtube.com/vi/HfhUU9Abe4c/hqdefault.jpg" width="50%">](https://vimeo.com/457701800)
 
 
 ### Using the command line interface
