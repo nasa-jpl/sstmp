@@ -27,7 +27,21 @@ def bounding_box_mono(*, west:float, east:float, south:float, north:float, exclu
     )
     # imgs.results = imgs.results.filter_sun_geometry()
     imgs.results = imgs.results.drop(exclude)
+    from_image_search(imgs)
+
+def from_csv(filepath):
+    #filepath to polygon
+    imgs = find_stereo_pairs.find_NACs_under_trajectory(csv_file_path=filepath)
+    from_image_search(imgs)
+
+def from_polygon(polygon_wkt):
+    imgs = find_stereo_pairs.ImageSearch(polygon=polygon_wkt)
     imgs.results = filter_nacs_mono(imgs.results)
+    from_image_search(imgs)
+
+def from_image_search(imgs):
+    imgs.results = filter_nacs_mono(imgs.results)
+    search_poly_shapely = shapely.wkt.loads(imgs.search_poly)
     imgs.results['geometry'] = imgs.results.footprint_geometry
     # Shrink all the footprints so that there will be overlap in final steps of mosaic creation
     imgs.results['geometry'] = imgs.results.apply(lambda row: shapely.affinity.scale(row.geometry, 0.9, 0.9, 0.9), axis=1)
@@ -40,4 +54,4 @@ def bounding_box_mono(*, west:float, east:float, south:float, north:float, exclu
     print(json.dumps(tuple(imgs.index.values)))
 
 if __name__ == '__main__':
-    clize.run(bounding_box_mono)
+    clize.run(bounding_box_mono, alt=from_polygon)

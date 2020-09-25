@@ -8,6 +8,7 @@ resources:
   - moon/wftmpl/nac-mos-mono.yaml
   - moon/wftmpl/nac-mos-stereo.yaml
   - moon/wftmpl/nac-mos-mono-uitest.yaml
+  - moon/wftmpl/nac-mos-mono-polygon.yaml
 
 patches:
   - argo-configmap.yaml
