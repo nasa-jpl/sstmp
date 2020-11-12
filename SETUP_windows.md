@@ -9,10 +9,10 @@ Admin access to a Windows 10 system. Instructions were tested on Windows build 2
 1. Download skaffold from https://storage.googleapis.com/skaffold/releases/v1.8.0/skaffold-windows-amd64.exe and install
 1. Clone the Trek git repository
 
-    `git clone -b argo https://code.jpl.nasa.gov/lmmpteam/TrekDataPrep.git`
+    `git clone git@github.com:nasa-jpl/sstmp.git`
 1. Change directories into where skaffold.yaml is
 
-    `cd TrekDataPrep\moon\NACpipeline`
+    `cd sstmp/src`
 
 1. Manually install Argo custom resource definitions, for complicated reasons. Hopefully this step can be removed.
 

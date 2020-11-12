@@ -19,10 +19,11 @@ Terminal access to an Ubuntu 18.04 system, with root permissions.
     
 1. Clone the Trek git repository
 
-    `git clone -b argo https://code.jpl.nasa.gov/lmmpteam/TrekDataPrep.git`
+    `git clone git@github.com:nasa-jpl/sstmp.git`
 1. Change directories into where skaffold.yaml is
 
-    `cd src`
+    `cd sstmp/src`
+    
 1. Manually install Argo custom resource definitions, for complicated reasons. Hopefully this step can be removed.
 
     `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds/minimal`, 
