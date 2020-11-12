@@ -42,7 +42,7 @@ ENV PATH /opt/conda/envs/env/bin:$PATH
 
 # Install Orfeo Toolbox (OTB) for ortho mosaics
 RUN apt-get install -y --allow-unauthenticated file
-RUN wget -nv https://www.orfeo-toolbox.org/packages/OTB-7.1.0-Linux64.run; chmod +x ./OTB-7.1.0-Linux64.run; ./OTB-7.1.0-Linux64.run
+RUN wget -nv https://www.orfeo-toolbox.org/packages/OTB-7.2.0-Linux64.run; chmod +x ./OTB-7.2.0-Linux64.run; ./OTB-7.2.0-Linux64.run
 # This works for now but might need to source otbenv.profile if we use features of OTB other than mosaic
 ENV PATH /OTB-7.1.0-Linux64/bin:$PATH
 
