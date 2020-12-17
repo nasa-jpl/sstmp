@@ -13,19 +13,15 @@ RUN bash Miniconda3-latest-Linux-x86_64.sh -b
 # Install USGS ISIS
 RUN apt-get install -y --allow-unauthenticated libglu1
 ENV PATH="/root/miniconda3/bin:$PATH"
-RUN conda create -n isis3 isis3 python=3.6 --channel usgs-astrogeology --channel conda-forge
-ENV ISISROOT /root/miniconda3/envs/isis3
+RUN conda create -n isis isis python=3.6 --channel usgs-astrogeology --channel conda-forge
+ENV ISISROOT /root/miniconda3/envs/isis
 
 # Copy minimal files required for ISIS LRO NAC processing
-ENV ISIS3DATA /isisdata
+ENV ISISDATA /isisdata
 ENV PATH $ISISROOT/bin:$PATH
 RUN mkdir -p /isisdata/lro/kernels/pck /isisdata/lro/kernels/tspk /nacpl
 COPY lro_isis_rsync_exclude /nacpl/
 RUN rsync -az --exclude-from=/nacpl/lro_isis_rsync_exclude isisdist.astrogeology.usgs.gov::isis3data/data/base /isisdata
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/moon_assoc_me.tf isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/moon_080317.tf /isisdata/lro/kernels/pck
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/tspk/moon_pa_de421_1900-2050.bpc isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/tspk/de421.bsp /isisdata/lro/kernels/tspk
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/translations isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/kernels.*.db /isisdata/lro/
-RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::isis3data/data/lro/calibration /isisdata/lro/
 
 # Install Ames Stereo Pipeline
 RUN apt-get install -y --allow-unauthenticated xorg-dev
