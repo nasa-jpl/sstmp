@@ -17,3 +17,4 @@ data:
         name: my-minio-cred
         key: secretkey
       keyFormat: nac
+  containerRuntimeExecutor: pns
