@@ -24,4 +24,4 @@ dependencies:
   - pip:
     - clize==4.1
     - wget==3.2
-    - git+https://github.com/wtolson/pysis@7b907c8104bddfbb14c603de4d666c2101e1f999
+    - git+https://github.com/acpaquette/pysis.git@c0d84e6e5a803e11844a866ef5e30c6eee63b01b
