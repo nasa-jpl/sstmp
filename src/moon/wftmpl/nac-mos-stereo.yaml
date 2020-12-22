@@ -290,7 +290,7 @@ spec:
               ! test -f /data/nac/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/map-{{inputs.parameters.right-prod-id}}.map.cub)
           then
             . activate nacpl_env
-            cd /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/bin
+            cd /StereoPipeline/bin
             cam2map4stereo.py \
                 --prefix=/data/nac/tmp/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/map \
                 /data/nac/{{inputs.parameters.left-prod-id}}.cal.cub \

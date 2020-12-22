@@ -27,10 +27,10 @@ RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::
 # Install Ames Stereo Pipeline
 RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated xorg-dev
-RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/v2.6.2/StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
-RUN tar xjf StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
-ENV PATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/bin:$PATH
-ENV PYTHONPATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/libexec:$PYTHONPATH
+RUN wget -nv -O StereoPipeline.tar.bz2 https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN tar xjf StereoPipeline.tar.bz2
+ENV PATH /StereoPipeline/bin:$PATH
+ENV PYTHONPATH /StereoPipeline/libexec:$PYTHONPATH
 
 # Set up environment with GDAL etc
 COPY nacpl_env.yml /nacpl/
