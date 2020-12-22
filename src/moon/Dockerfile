@@ -22,8 +22,10 @@ ENV PATH $ISISROOT/bin:$PATH
 RUN mkdir -p /isisdata/lro/kernels/pck /isisdata/lro/kernels/tspk /nacpl
 COPY lro_isis_rsync_exclude /nacpl/
 RUN rsync -az --exclude-from=/nacpl/lro_isis_rsync_exclude isisdist.astrogeology.usgs.gov::isis3data/data/base /isisdata
+RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::isis3data/data/lro/calibration /isisdata/lro/
 
 # Install Ames Stereo Pipeline
+RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated xorg-dev
 RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/v2.6.2/StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
 RUN tar xjf StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
