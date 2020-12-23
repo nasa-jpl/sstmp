@@ -16,7 +16,7 @@ build:
 deploy:
   kubectl: 
     manifests: 
-    - https://raw.githubusercontent.com/argoproj/argo/release-2.12.1/manifests/quick-start-mysql.yaml
+    - https://raw.githubusercontent.com/argoproj/argo/release-2.11/manifests/quick-start-mysql.yaml
   kustomize: {}
 
 
