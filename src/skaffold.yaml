@@ -6,9 +6,9 @@ metadata:
   name: skaffold
 build:
   artifacts:
-  - image: lmmp-local/lmmp-container
+  - image: lmmp-container
     context: moon
-  - image: lmmp-local/moonui
+  - image: moonui
     context: moon/ui
   tagPolicy:
     envTemplate:

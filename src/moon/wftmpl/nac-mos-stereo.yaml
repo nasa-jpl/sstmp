@@ -29,8 +29,8 @@ spec:
           - name: right-prod-id
           - name: left-prod-id
       container: &nacpl-container
-        image: lmmp-local/lmmp-container
-        imagePullPolicy: IfNotPresent
+        image: localhost:5000/lmmp-container
+        imagePullPolicy: Always
         volumeMounts:
           - name: sstmp-data  # Should have been created in volumes.yaml
             mountPath: /data/nac
