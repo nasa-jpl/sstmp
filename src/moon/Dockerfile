@@ -27,8 +27,9 @@ RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::
 # Install Ames Stereo Pipeline
 RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated xorg-dev
-RUN wget -nv -O StereoPipeline.tar.bz2 https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
-RUN tar xjf StereoPipeline.tar.bz2
+RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN tar xjf https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN mv /StereoPipeline-2.7.0-2020-07-29-x86_64-Linux /StereoPipeline
 ENV PATH /StereoPipeline/bin:$PATH
 ENV PYTHONPATH /StereoPipeline/libexec:$PYTHONPATH
 
