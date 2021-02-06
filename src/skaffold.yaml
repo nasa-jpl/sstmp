@@ -1,6 +1,6 @@
 # Skaffold to set up NAC pipeline argo workflow
 
-apiVersion: skaffold/v2beta2
+apiVersion: skaffold/v2beta11
 kind: Config
 metadata:
   name: skaffold
@@ -11,8 +11,7 @@ build:
   - image: moonui
     context: moon/ui
   tagPolicy:
-    envTemplate:
-      template: "{{.IMAGE_NAME}}:latest"
+    sha256: {}
 deploy:
   kubectl: 
     manifests: 
