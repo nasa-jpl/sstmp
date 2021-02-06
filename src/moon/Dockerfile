@@ -28,7 +28,7 @@ RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::
 RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated xorg-dev
 RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
-RUN tar xjf https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN tar xjf StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
 RUN mv /StereoPipeline-2.7.0-2020-07-29-x86_64-Linux /StereoPipeline
 ENV PATH /StereoPipeline/bin:$PATH
 ENV PYTHONPATH /StereoPipeline/libexec:$PYTHONPATH
@@ -50,3 +50,4 @@ RUN wget -nv http://lroc.sese.asu.edu/data/LRO-L-LROC-2-EDR-V1.0/LROLRC_0042A/IN
 
 # Copy nacpl scripts
 COPY nacpl /nacpl/
+COPY IsisPreferences $ISISROOT
