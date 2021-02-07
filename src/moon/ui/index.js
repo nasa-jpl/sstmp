@@ -24,7 +24,7 @@ import {createColorKey} from "./colors";
 import {Collapsible} from "./collapsible";
 
 let mosaicGoal
-
+customElements.define('sstmp-collapsible', Collapsible)
 // map setup
 export const moonmap = new Map({
     target: 'map',
@@ -196,6 +196,5 @@ const addFootprint = (nacId, status) => {
         })
 }
 
-customElements.define('sstmp-collapsible', Collapsible)
 attachToWorkflowEvents(update)
 createColorKey()
