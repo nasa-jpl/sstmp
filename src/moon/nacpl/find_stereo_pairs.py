@@ -100,7 +100,7 @@ class ImageSearch:
         self.search_kwargs = kwargs
         if 'polygon' in kwargs.keys():
             self.search_poly = kwargs['polygon']
-            self.results = self._search_from_poly(polygon=kwargs['polygon'])
+            self.results = self._search_from_poly(*args, **kwargs)
         else:
             self.results = self._search_from_bb(*args, **kwargs)
 
@@ -108,9 +108,13 @@ class ImageSearch:
     def _search_from_poly(polygon: str,
                           indfilepath=indfilepath,  #TODO need better solution than hardcoding path to local files
                           lblfilepath=lblfilepath,
+                          projection='ec',
                           verbose=False
                           ):
-
+        """
+        :param str projection: The projection to use. Should be 'ec' for lat / lon equidistant cylindrical, 'sp' for
+        south polar, 'np' for north polar. 
+        """
         pointzone_urlstring = urllib.parse.quote_plus(polygon)
         count_url = f'http://oderest.rsl.wustl.edu/live2/?query=products&target=moon&results=c&ihid=lro&iid=lroc&pt=EDRNAC&output=JSON&limit=1000&footprint={pointzone_urlstring}&loc=f'
         count_resp = urllib.request.urlopen(count_url)
@@ -138,7 +142,20 @@ class ImageSearch:
                      [col for col in footprints.columns if not col.endswith('_ode')]
                      ]
         footprints = footprints.apply(to_numeric_or_date)
-        footprints.footprint_geometry = footprints.footprint_geometry.apply(wkt.loads)
+
+        if projection=='ec':
+            # Use IAU2000:30101
+            crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
+            footprints.footprint_geometry = footprints.footprint_geometry.apply(wkt.loads)
+        elif projection=='sp':
+            # Use IAU2000:30120
+            crs = '+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
+            footprints.footprint_geometry = footprints.footprint_sp_geometry.apply(wkt.loads)
+        elif projection=='np':
+            # Use IAU2000:30118
+            crs = '+proj=stere +lat_0=90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
+            footprints.footprint_geometry = footprints.footprint_np_geometry.apply(wkt.loads)
+            
         if verbose:
             print(f'{len(footprints)} NACs were listed in the CUMINDEX.TAB file')
         footprints = geopandas.GeoDataFrame(footprints, geometry='footprint_geometry')
