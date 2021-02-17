@@ -18,6 +18,15 @@ import numpy
 import urllib
 import json
 
+projections = {
+    # IAU2000:30101
+    'ec': '+proj=longlat +a=1737400 +b=1737400 +no_defs',
+    # IAU2000:30118
+    'np': '+proj=stere +lat_0=90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs',
+    # Use IAU2000:30120
+    'sp': '+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
+}
+
 pandas.options.mode.chained_assignment = None
 
 lblfilepath = r'/INDEX.LBL'
@@ -143,6 +152,7 @@ class ImageSearch:
                      ]
         footprints = footprints.apply(to_numeric_or_date)
 
+        crs = projections[projection]
         if projection=='ec':
             # Use IAU2000:30101
             crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
@@ -159,14 +169,20 @@ class ImageSearch:
         if verbose:
             print(f'{len(footprints)} NACs were listed in the CUMINDEX.TAB file')
         footprints = geopandas.GeoDataFrame(footprints, geometry='footprint_geometry')
-        footprints.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
+        footprints.crs = crs
         footprints.geometry = footprints.footprint_geometry
         # Upcast from shapely LineString to shapely Polygon
+        def polygonize(geom):
+            try:
+                return Polygon(geom)
+            except NotImplementedError:
+                print(f'Problem geometry: {geom} dropped')
+                return None
         footprints.footprint_geometry = footprints.footprint_geometry.apply(
-            lambda footprint: Polygon(footprint)
+            polygonize
         )
         footprints.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
-        return footprints
+        return footprints.dropna()
 
     @staticmethod
     def _search_from_bb(*args, **kwargs):
@@ -242,17 +258,19 @@ class StereoPairSet:
     Name: geometry, dtype: geometry
 
     """
-    def __init__(self, imagesearch=None, pairs=None):
+    def __init__(self, imagesearch=None, pairs=None, projection='ec'):
         # If StereoPairSet is instantiated with another StereoPairSet, copy the pairs
         if pairs is not None:
             self.pairs = pairs
         elif imagesearch is not None:
-            gdf = imagesearch.results
+            gdf = imagesearch.results.dropna()
             gdf['prod_id'] = gdf.index  # Store index (product id) in column so that it's preserved in spatial join operation
             self.pairs = geopandas.overlay(gdf, gdf, how='union')
-            pairs_eqc = self.pairs.to_crs(
-                "+proj=eqc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs"
-            )
+            # If we're in lat lon, then need to convert to meters before calculating area
+            if projection=='ec':
+                pairs_eqc = self.pairs.to_crs(
+                    "+proj=eqc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs"
+                )
             self.pairs['area_m2'] = pairs_eqc.area    # Store area as column before sorting (could use key fn instead...)
             self.pairs.sort_values('area_m2', ascending=False, inplace=True)
             self.filter_unique(inplace=True)  # TODO pair_id is created inside this method call -- maybe not the best place for that
