@@ -13,6 +13,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel --public-url '/moon' index.html",
     "start-local": "parcel --log-level 4 index.html",
-    "build": "parcel build --public-url . index.html"
+    "build": "parcel build --public-url . index.html",
+    "preinstall": "npx npm-force-resolutions"
+  },
+  "resolutions": {
+    "node-forge": "0.10.0"
   }
 }

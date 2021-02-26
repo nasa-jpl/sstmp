@@ -14,10 +14,6 @@ Admin access to a Windows 10 system. Instructions were tested on Windows build 2
 
     `cd sstmp/src`
 
-1. Manually install Argo custom resource definitions, for complicated reasons. Hopefully this step can be removed.
-
-    `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds/minimal`, 
-    
 1. Use skaffold to build and start the app
 
     `C:\whereYourDownloadsGo\skaffold-windows-amd64.exe run`

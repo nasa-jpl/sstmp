@@ -13,26 +13,25 @@ RUN bash Miniconda3-latest-Linux-x86_64.sh -b
 # Install USGS ISIS
 RUN apt-get install -y --allow-unauthenticated libglu1
 ENV PATH="/root/miniconda3/bin:$PATH"
-RUN conda create -n isis3 isis3 python=3.6 --channel usgs-astrogeology --channel conda-forge
-ENV ISISROOT /root/miniconda3/envs/isis3
+RUN conda create -n isis isis python=3.6 --channel usgs-astrogeology --channel conda-forge
+ENV ISISROOT /root/miniconda3/envs/isis
 
 # Copy minimal files required for ISIS LRO NAC processing
-ENV ISIS3DATA /isisdata
+ENV ISISDATA /isisdata
 ENV PATH $ISISROOT/bin:$PATH
 RUN mkdir -p /isisdata/lro/kernels/pck /isisdata/lro/kernels/tspk /nacpl
 COPY lro_isis_rsync_exclude /nacpl/
 RUN rsync -az --exclude-from=/nacpl/lro_isis_rsync_exclude isisdist.astrogeology.usgs.gov::isis3data/data/base /isisdata
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/moon_assoc_me.tf isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/moon_080317.tf /isisdata/lro/kernels/pck
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/tspk/moon_pa_de421_1900-2050.bpc isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/tspk/de421.bsp /isisdata/lro/kernels/tspk
-RUN rsync -az isisdist.astrogeology.usgs.gov::isis3data/data/lro/translations isisdist.astrogeology.usgs.gov::isis3data/data/lro/kernels/pck/kernels.*.db /isisdata/lro/
 RUN rsync -az --exclude 'wac*' --exclude 'WAC*' isisdist.astrogeology.usgs.gov::isis3data/data/lro/calibration /isisdata/lro/
 
 # Install Ames Stereo Pipeline
+RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated xorg-dev
-RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/v2.6.2/StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
-RUN tar xjf StereoPipeline-2.6.2-2019-06-17-x86_64-Linux.tar.bz2
-ENV PATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/bin:$PATH
-ENV PYTHONPATH /StereoPipeline-2.6.2-2019-06-17-x86_64-Linux/libexec:$PYTHONPATH
+RUN wget -nv https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/2.7.0/StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN tar xjf StereoPipeline-2.7.0-2020-07-29-x86_64-Linux.tar.bz2
+RUN mv /StereoPipeline-2.7.0-2020-07-29-x86_64-Linux /StereoPipeline
+ENV PATH /StereoPipeline/bin:$PATH
+ENV PYTHONPATH /StereoPipeline/libexec:$PYTHONPATH
 
 # Set up environment with GDAL etc
 COPY nacpl_env.yml /nacpl/
@@ -42,7 +41,7 @@ ENV PATH /opt/conda/envs/env/bin:$PATH
 
 # Install Orfeo Toolbox (OTB) for ortho mosaics
 RUN apt-get install -y --allow-unauthenticated file
-RUN wget -nv https://www.orfeo-toolbox.org/packages/archives/OTB/OTB-7.1.0-Linux64.run; chmod +x ./OTB-7.1.0-Linux64.run; ./OTB-7.1.0-Linux64.run
+RUN wget -nv https://www.orfeo-toolbox.org/packages/archives/OTB/OTB-7.2.0-Linux64.run; chmod +x ./OTB-7.2.0-Linux64.run; ./OTB-7.2.0-Linux64.run
 # This works for now but might need to source otbenv.profile if we use features of OTB other than mosaic
 ENV PATH /OTB-7.1.0-Linux64/bin:$PATH
 
@@ -51,3 +50,4 @@ RUN wget -nv http://lroc.sese.asu.edu/data/LRO-L-LROC-2-EDR-V1.0/LROLRC_0042A/IN
 
 # Copy nacpl scripts
 COPY nacpl /nacpl/
+COPY IsisPreferences $ISISROOT

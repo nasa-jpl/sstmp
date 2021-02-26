@@ -18,6 +18,8 @@ import numpy
 import urllib
 import json
 
+pandas.options.mode.chained_assignment = None
+
 lblfilepath = r'/INDEX.LBL'
 indfilepath = r'/CUMINDEX.TAB'
 

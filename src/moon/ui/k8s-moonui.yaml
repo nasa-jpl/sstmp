@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: moonui
-          image: lmmp-local/moonui
+          image: moonui
           imagePullPolicy: IfNotPresent
   selector:
     matchLabels:
