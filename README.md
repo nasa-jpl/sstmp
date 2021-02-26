@@ -30,6 +30,7 @@ Development goals of the project are:
  - Nginx ingress setup on your kubernetes cluster. For minikube, this means running `minikube addons enable ingress`. 
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
  - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH
+ - A container image registry to which you have write access. You can set up a private registry using `docker run -d -p 5000:5000 --restart=always --name sstmp-reg registry:2` and then specify it using `--default-repo=localhost:5000` when the installation step using `skaffold` below
 
 Internally, SSTMP uses a slew of free and open source programs, including:
  - USGS ISIS
@@ -43,8 +44,7 @@ If you already have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src`
 1. Configure your storage settings. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`.
-1. Run `kubectl apply -k https://github.com/argoproj/argo/manifests/base/crds/minimal`, for complicated reasons. Hopefully this step can be removed. 
-1. Install SSTMP: run `skaffold run`
+1. Install SSTMP: run `skaffold run --status-check`
 
 Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
 
