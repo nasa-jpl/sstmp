@@ -4,9 +4,9 @@ Loads LROC NAC metadata and footprints from local
 
 # Read column descriptions from CUMINDEX.LBL
 # this was downloaded from http://lroc.sese.asu.edu/data/LRO-L-LROC-2-EDR-V1.0/LROLRC_0040C/INDEX/
-lblfilepath = r'C:\tmp\CUMINDEX.LBL'
-indfilepath = r'C:\tmp\CUMINDEX.TAB'
-footprintfileglob = r'C:\tmp\nac_coverage\moon_lro_lroc_edrnac_ga\*.shp'
+lblfilepath = r'/INDEX.LBL'
+indfilepath = r'/CUMINDEX.TAB'
+footprintfileglob = r'/moon_lro_lroc_edrnac_ga/*.shp'
 
 def load_nac_index(lblfilepath=lblfilepath, indfilepath=indfilepath):
     import pandas
