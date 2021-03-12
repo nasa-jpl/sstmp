@@ -188,7 +188,6 @@ const addFootprint = (nacId, status) => {
                 const footprintWkt = data.ODEResults.Products[footprint].Footprint_C0_geometry
                 const newFeat = new WKT().readFeature(footprintWkt)
                 const newFeatGeom = newFeat.getGeometry()
-                newFeatGeom.translate(180, 0)
                 newFeatGeom.transform('EPSG:4326', 'EPSG:3857')
                 newFeat.setId(nacId)
                 nacFootprintsSource.addFeature(newFeat)

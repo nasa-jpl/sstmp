@@ -24,8 +24,9 @@ def corners_to_quadrilateral(west, east, south, north, lonC0=False):
     except AssertionError:
         print("Problem with latitude values. Please ensure south is less than north, and you are using -90 to 90 latitude.")
 
+    # We always work in 0 to 360 lon because we use the ODE REST api, which likes that.
     if lonC0:
-        east, west = [lon + 180 for lon in (east, west)]
+        east, west = [lon + 360 for lon in (east, west) if lon < 0]
 
     return Polygon((
         (west, north), (east, north), (east, south), (west, south)
