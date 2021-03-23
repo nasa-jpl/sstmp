@@ -9,7 +9,7 @@ Aaron Curtis
 # TODO make addition of inplace parameter into a decorator
 
 
-from nacpl import get_NAC_info_DSBservice, geom_helpers, load_nac_metadata
+from nacpl import geom_helpers, load_nac_metadata
 from shapely.geometry import Polygon, LineString
 from shapely import wkt
 import geopandas, pandas
@@ -98,10 +98,6 @@ class ImageSearch:
 
     May be initialized with a WKT string representing a polygon. In that case, it will find all footprints intersecting
     that polygon.
-
-    Otherwise, initialization arguments are same as get_NAC_info_DSBservice.get_NAC_info_bbox_DSBservice. In this case,
-    a bounding box can be searched using the arguments east, west, north, south, which represent the edges of the
-    bounding box.
     """
 
     def __init__(self, *args, **kwargs):
@@ -183,38 +179,6 @@ class ImageSearch:
         )
         footprints.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
         return footprints.dropna()
-
-    @staticmethod
-    def _search_from_bb(*args, **kwargs):
-        search_results = get_NAC_info_DSBservice.get_NAC_info_bbox_DSBservice(
-            *args, **kwargs, verbose=False
-        )
-        search_dict = {
-            nac_url_to_id(res['url']): res
-            for res in search_results
-        }
-        gdf = geopandas.GeoDataFrame(search_dict).transpose()
-        gdf = gdf.apply(to_numeric_or_date)
-        gdf.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
-        gdf.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs' #AKA IAU2000:30100, ESRI:104903, GCS_Moon_2000
-        gdf = gdf.loc[:,[col for col in gdf.columns if not col.startswith('wac')]]
-        #Create shapely polygons from image corners
-        corners = (
-            'upper_left',
-            'upper_right',
-            'lower_right',
-            'lower_left'
-        )
-        for prod_id in gdf.index:
-            gdf.loc[prod_id, 'polygon'] = Polygon(
-                [
-                    (gdf.loc[prod_id, corner + '_longitude'],
-                     gdf.loc[prod_id, corner + '_latitude'])
-                    for corner in corners
-                ]
-            )
-        gdf.set_geometry('polygon', inplace=True)
-        return gdf
 
     def date_range(self):
         return self.results.start_time.min(), self.results.stop_time.max()
