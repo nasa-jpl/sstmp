@@ -8,19 +8,19 @@ channels:
   - conda-forge
 dependencies:
   - python=3.7
-  - beautifulsoup4=4.8
-  - gdal=2.3
-  - numpy=1.17
-  - lxml=4.4
-  - geopandas=0.6
-  - matplotlib=3.1
+  - beautifulsoup4=4.9
+  - gdal=3.2
+  - numpy=1.19
+  - lxml=4.5
+  - geopandas=0.8
+  - matplotlib=3.3
   - descartes=1.1
-  - pytest=5.3
-  - pvl=0.3
-  - numpy=1.17
-  - six=1.13
-  - requests=2.22
-  - pip
+  - pytest=6.2
+  - pvl=1.1
+  - numpy=1.19
+  - six=1.15
+  - requests=2.25
+  - pip=21.0
   - pip:
     - clize==4.1
     - wget==3.2
