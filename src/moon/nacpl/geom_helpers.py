@@ -26,7 +26,7 @@ def corners_to_quadrilateral(west, east, south, north, lonC0=False):
 
     # We always work in 0 to 360 lon because we use the ODE REST api, which likes that.
     if lonC0:
-        east, west = [lon + 360 for lon in (east, west) if lon < 0]
+        east, west = [lon + 360 if lon < 0 else lon for lon in (east, west)]
 
     return Polygon((
         (west, north), (east, north), (east, south), (west, south)
