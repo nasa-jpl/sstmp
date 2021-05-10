@@ -10,7 +10,7 @@ spec:
   capacity:
     storage: 100Gi
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: slow
 
@@ -38,7 +38,7 @@ metadata:
 spec:
   storageClassName: slow
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 90Gi
