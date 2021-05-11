@@ -4,23 +4,20 @@
 
 name: nacpl_env
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - python=3.7
   - beautifulsoup4=4.9
   - gdal=3.2
-  - numpy=1.19
-  - lxml=4.5
-  - geopandas=0.8
-  - matplotlib=3.3
+  - lxml=4.6
+  - geopandas=0.9
+  - matplotlib=3.4
   - descartes=1.1
   - pytest=6.2
-  - pvl=1.1
-  - numpy=1.19
-  - six=1.15
+  - pvl=1.2
+  - six=1.16
   - requests=2.25
-  - pip=21.0
+  - pip=21.1
   - pip:
     - clize==4.1
     - wget==3.2

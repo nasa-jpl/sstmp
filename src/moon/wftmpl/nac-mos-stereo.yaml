@@ -108,7 +108,8 @@ spec:
         <<: *nacpl-container
         command: [bash]
         source: |
-          . activate nacpl_env
+          . activate isis
+          . activate --stack nacpl_env
           python /nacpl/find_stereo_pairs.py \
           --west={{inputs.parameters.west}} \
           --east={{inputs.parameters.east}} \
@@ -205,7 +206,8 @@ spec:
         <<: *nacpl-container
         command: [bash]
         source: |
-          . activate nacpl_env
+          . activate isis
+          . activate --stack nacpl_env
           if ! test -f /data/nac/{{inputs.parameters.prod-id}}.IMG
           then
             python /nacpl/download_NAC.py {{inputs.parameters.prod-id}} /data/nac
@@ -225,7 +227,8 @@ spec:
         source: |
           if ! test -f /data/nac/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/*_lola.csv
           then
-            . activate nacpl_env
+            . activate isis 
+            . activate --stack nacpl_env
             cd /data/nac/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}
             python /nacpl/download_LOLA.py \
             map-{{inputs.parameters.left-prod-id}}.map.cub map-{{inputs.parameters.right-prod-id}}.map.cub \
@@ -289,7 +292,8 @@ spec:
           if (! test -f /data/nac/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/map-{{inputs.parameters.left-prod-id}}.map.cub && \
               ! test -f /data/nac/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/map-{{inputs.parameters.right-prod-id}}.map.cub)
           then
-            . activate nacpl_env
+            . activate isis 
+            . activate --stack nacpl_env
             cd /StereoPipeline/bin
             cam2map4stereo.py \
                 --prefix=/data/nac/tmp/{{inputs.parameters.left-prod-id}}xx{{inputs.parameters.right-prod-id}}/map \
@@ -388,7 +392,8 @@ spec:
         command: [bash]
         #TODO tidy up following section, maybe get rid of bash substitution
         source: |
-          . activate nacpl_env
+          . activate isis 
+          . activate --stack nacpl_env
           mkdir -p /data/nac/merged
           python /nacpl/mosaic_merge.py $'{{inputs.parameters.pair-ids}}' DEM /data/nac /tmp/
 
