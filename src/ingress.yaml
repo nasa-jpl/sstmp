@@ -1,20 +1,34 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sstmp-ingress
 spec:
+  tls:
+    - hosts:
+        - trek-k8.jpl.nasa.gov
+      secretName: trek-k8-tls
   rules:
-    - http:
+    - host: trek-k8.jpl.nasa.gov
+      http:
         paths:
-          - path: /moon
-            backend:
-              serviceName: moonui
-              servicePort: 1234
-          - path: /
-            backend:
-              serviceName: argo-server
-              servicePort: 2746
-          - path: /minio
-            backend:
-              serviceName: minio
-              servicePort: 9000
+          - backend:
+              service:
+                name: moonui
+                port:
+                  number: 1234
+            path: /moon
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: argo-server
+                port:
+                  number: 2746
+            path: /
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+            path: /minio
+            pathType: ImplementationSpecific
