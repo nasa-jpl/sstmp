@@ -229,7 +229,7 @@ class StereoPairSet:
         elif imagesearch is not None:
             gdf = imagesearch.results.dropna()
             gdf['prod_id'] = gdf.index  # Store index (product id) in column so that it's preserved in spatial join operation
-            self.pairs = geopandas.overlay(gdf, gdf, how='union')
+            self.pairs = geopandas.overlay(gdf, gdf, how='union', keep_geom_type=True)
             # If we're in lat lon, then need to convert to meters before calculating area
             if projection=='ec':
                 pairs_eqc = self.pairs.to_crs(
