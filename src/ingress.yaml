@@ -1,34 +1,42 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: sstmp-ingress
+  name: security-headers
 spec:
+  headers:
+    frameDeny: true
+    sslRedirect: true
+    #HSTS
+    stsIncludeSubdomains: true
+    stsSeconds: 31536000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sstmp-ingressroute
+  namespace: default
+spec:
+  routes:
+    - match: Host(`trek-k8.jpl.nasa.gov`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: argo-server
+          port: 2746
+          namespace: default
+      middlewares:
+        - name: security-headers
   tls:
-    - hosts:
-        - trek-k8.jpl.nasa.gov
-      secretName: trek-k8-tls
-  rules:
-    - host: trek-k8.jpl.nasa.gov
-      http:
-        paths:
-          - backend:
-              service:
-                name: moonui
-                port:
-                  number: 1234
-            path: /moon
-            pathType: ImplementationSpecific
-          - backend:
-              service:
-                name: argo-server
-                port:
-                  number: 2746
-            path: /
-            pathType: ImplementationSpecific
-          - backend:
-              service:
-                name: minio
-                port:
-                  number: 9000
-            path: /minio
-            pathType: ImplementationSpecific
+    secretName: trek-k8-tls
+    domains:
+      - main: trek-k8.jpl.nasa.gov
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSOption
+metadata:
+  name: default
+  namespace: default
+
+spec:
+  cipherSuites:
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
