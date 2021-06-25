@@ -13,9 +13,6 @@ build:
   tagPolicy:
     sha256: {}
 deploy:
-  kubectl: 
-    manifests: 
-    - https://raw.githubusercontent.com/argoproj/argo/release-2.11/manifests/quick-start-mysql.yaml
   kustomize: {}
 
 

@@ -12,3 +12,4 @@ resources:
 
 patches:
   - argo-configmap.yaml
+  - disable-internal-tls.yaml
