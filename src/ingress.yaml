@@ -26,6 +26,24 @@ spec:
           namespace: default
       middlewares:
         - name: security-headers
+    - match: Host(`trek-k8.jpl.nasa.gov`) && PathPrefix(`/moonui`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: moonui
+          port: 1234
+          namespace: default
+      middlewares:
+        - name: security-headers
+    - match: Host(`trek-k8.jpl.nasa.gov`) && PathPrefix(`/minio`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: minio
+          port: 9000
+          namespace: default
+      middlewares:
+        - name: security-headers
   tls:
     secretName: trek-k8-tls
     domains:
