@@ -181,7 +181,7 @@ const submitMosaicWorkflow = (template) => {
 }
 
 const addFootprint = (nacId, status) => {
-    fetch(`http://oderest.rsl.wustl.edu/live2/?query=product&results=x&proj=c0&output=JSON&target=moon&pdsid=${nacId}`)
+    fetch(`https://oderest.rsl.wustl.edu/live2/?query=product&results=x&proj=c0&output=JSON&target=moon&pdsid=${nacId}`)
         .then(response => response.json())
         .then(data => {
             for (let footprint in data.ODEResults.Products){
