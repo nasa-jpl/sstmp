@@ -13,17 +13,11 @@ build:
   tagPolicy:
     sha256: {}
 deploy:
+  kubectl:
+    manifests:
+      - argo_crds.yaml
+      - moon/wftmpl/nac-mos-mono.yaml
+      - moon/wftmpl/nac-mos-stereo.yaml
+      - moon/wftmpl/nac-mos-mono-uitest.yaml
+      - moon/wftmpl/nac-mos-mono-polygon.yaml
   kustomize: {}
-
-
-portForward:
-  - resourceType: service
-    resourceName: argo-server
-    address: 0.0.0.0
-    port: 2746
-    localPort: 32019
-  - resourceType: service
-    resourceName: moonui
-    address: 0.0.0.0
-    port: 1234
-    localPort: 32020
