@@ -13,11 +13,6 @@ build:
   tagPolicy:
     sha256: {}
 deploy:
-  kubectl:
-    manifests:
-      - argo_crds.yaml
-      - moon/wftmpl/nac-mos-mono.yaml
-      - moon/wftmpl/nac-mos-stereo.yaml
-      - moon/wftmpl/nac-mos-mono-uitest.yaml
-      - moon/wftmpl/nac-mos-mono-polygon.yaml
-  kustomize: {}
+  kustomize:
+    buildArgs:
+      - "--enable_kyaml=false"
