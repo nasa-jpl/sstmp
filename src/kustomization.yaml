@@ -13,3 +13,4 @@ resources:
 patches:
   - argo-configmap.yaml
   - disable-internal-tls.yaml
+  - wait-for-mysql.yaml

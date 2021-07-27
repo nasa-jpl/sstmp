@@ -1,0 +1,16 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-server
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox
+          command: ["/bin/sh","-c"]
+          args: ["while ! nc -z mysql 3306; do sleep 1; done"]
+          # Below required b/c k8s worries container is running as root
+          securityContext:
+            runAsUser: 999
