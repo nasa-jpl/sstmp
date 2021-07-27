@@ -13,6 +13,9 @@ build:
   tagPolicy:
     sha256: {}
 deploy:
+  kubectl:
+    manifests:
+      - argo-crds.yaml #Need this so the workflowtemplate CRDS get installed before the workflow templates
   kustomize:
     buildArgs:
       - "--enable_kyaml=false"
