@@ -1,4 +1,57 @@
 apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sstmp-ingressroute
+  namespace: default
+spec:
+  routes:
+    - match: PathPrefix(`/`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: argo-server
+          port: 2746
+          namespace: default
+      middlewares:
+        - name: security-headers
+    - match: PathPrefix(`/moonui`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: moonui
+          port: 1234
+          namespace: default
+      middlewares:
+        - name: security-headers
+    - match: PathPrefix(`/minio`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: minio
+          port: 9000
+          namespace: default
+      middlewares:
+        - name: security-headers
+# Obtain a keypair for your domain (.crt and .key file), and then create a k8s tls secret using:
+# sudo kubectl create secret tls your-tls-secret --cert /path/to/your.crt --key /path/to/your.key
+# Then, put the secret name in the section below and uncomment it.
+
+#  tls:
+#    secretName: your-tls-secret
+#    domains:
+#      - main: your.domain
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSOption
+metadata:
+  name: default
+  namespace: default
+
+spec:
+  cipherSuites:
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: security-headers
@@ -10,51 +63,3 @@ spec:
     stsIncludeSubdomains: true
     stsSeconds: 31536000
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: sstmp-ingressroute
-  namespace: default
-spec:
-  routes:
-    - match: Host(`trek-k8.jpl.nasa.gov`)
-      kind: Rule
-      services:
-        - kind: Service
-          name: argo-server
-          port: 2746
-          namespace: default
-      middlewares:
-        - name: security-headers
-    - match: Host(`trek-k8.jpl.nasa.gov`) && PathPrefix(`/moonui`)
-      kind: Rule
-      services:
-        - kind: Service
-          name: moonui
-          port: 1234
-          namespace: default
-      middlewares:
-        - name: security-headers
-    - match: Host(`trek-k8.jpl.nasa.gov`) && PathPrefix(`/minio`)
-      kind: Rule
-      services:
-        - kind: Service
-          name: minio
-          port: 9000
-          namespace: default
-      middlewares:
-        - name: security-headers
-  tls:
-    secretName: trek-k8-tls
-    domains:
-      - main: trek-k8.jpl.nasa.gov
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: TLSOption
-metadata:
-  name: default
-  namespace: default
-
-spec:
-  cipherSuites:
-    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256

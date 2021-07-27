@@ -26,8 +26,7 @@ Development goals of the project are:
    - NAC Mosaic Pipeline should provide rigorous error analyses
  
 ## Requirements
- - Any Kubernetes cluster. This can be minikube running on a single machine / node, a cloud service such as Amazon EKS, or your own custom cluster. [k3d](https://github.com/rancher/k3d) is recommended as a quick way to set up Kubernetes.
- - Nginx ingress setup on your kubernetes cluster. For minikube, this means running `minikube addons enable ingress`. 
+ - Any Kubernetes cluster. This can be minikube running on a single machine / node, a cloud service such as Amazon EKS, or your own custom cluster. [k3s](https://github.com/rancher/k3s) is recommended as a quick way to set up Kubernetes.
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
  - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH. Unfortunately this needs to be kustomize 3, because of [this regression](https://github.com/kubernetes-sigs/kustomize/issues/3675) in kustomize 4.
  - A container image registry to which you have write access. You can set up a private registry using `docker run -d -p 5000:5000 --restart=always --name sstmp-reg registry:2` and then specify it using `--default-repo=localhost:5000` when the installation step using `skaffold` below
@@ -40,13 +39,12 @@ Internally, SSTMP uses a slew of free and open source programs, including:
  - Orfeo toolbox
 
 ## Setup
-If you already have the [requirements](#requirements),
+Once you have the [requirements](#requirements),
 1. Clone this repository
 1. Change to the directory containing `skaffold.yaml` : `cd src`
 1. Configure your storage settings. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`.
-1. Install SSTMP: run `skaffold run --status-check`
-
-Otherwise, you may want to follow the [more detailed instructions which start from a bare Ubuntu installation](SETUP_ubuntu.md). 
+1. Configure your ingress settings and tls. Open `volumes-example.yaml` in an editor, follow instructions in the comments, and save it as `volumes.yaml`.The included `ingress-example.yaml` assumes a Traefik 2 ingress controller, which comes bundled with k3s. If you are using another ingress controller such as nginx, you will need to edit this file.
+1. Install SSTMP: run `skaffold run`. If you're using a private registry, specify that with `--default-repo`, for example `skaffold dev --default-repo=localhost:5000`. You may also be interested in trying `skaffold dev` or `skaffold run --tail`.
 
 <a id="creating_a_mosaic" name="creating_a_mosaic"></a>
 ## Creating a lunar mosaic
