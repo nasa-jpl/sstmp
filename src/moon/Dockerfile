@@ -39,7 +39,7 @@ RUN wget -nv http://lroc.sese.asu.edu/data/LRO-L-LROC-2-EDR-V1.0/LROLRC_0042A/IN
 RUN apt-get install -y --allow-unauthenticated file
 RUN wget -nv https://www.orfeo-toolbox.org/packages/archives/OTB/OTB-7.2.0-Linux64.run; chmod +x ./OTB-7.2.0-Linux64.run; ./OTB-7.2.0-Linux64.run
 # This works for now but might need to source otbenv.profile if we use features of OTB other than mosaic
-ENV PATH /OTB-7.1.0-Linux64/bin:$PATH
+ENV PATH /OTB-7.2.0-Linux64/bin:$PATH
 
 ## Set up environment with GDAL etc
 COPY nacpl_env.yml /nacpl/
