@@ -8,19 +8,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get --allow-insecure-repositories update
 RUN apt-get install -y --allow-unauthenticated wget git rsync
 RUN wget -nv https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-RUN bash Miniconda3-latest-Linux-x86_64.sh -b
+RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3
+RUN chmod -R 777 /opt/miniconda3
 
 # Install USGS ISIS and Ames Stereo Pipeline
 RUN apt-get install -y --allow-unauthenticated libglu1
-ENV PATH="/root/miniconda3/bin:$PATH"
+ENV PATH="/opt/miniconda3/bin:$PATH"
 RUN conda create -n isis python=3.6; \
     source activate isis; \
     conda config --env --add channels conda-forge; \
     conda config --env --add channels usgs-astrogeology; \
-    conda config --env --add channels nasa-ames-stereo-pipeline; \ 
+    conda config --env --add channels nasa-ames-stereo-pipeline; \
     conda install stereo-pipeline==2.7.0
 
-ENV ISISROOT /root/miniconda3/envs/isis
+ENV ISISROOT /opt/miniconda3/envs/isis
 
 # Copy minimal files required for ISIS LRO NAC processing
 ENV ISISDATA /isisdata
