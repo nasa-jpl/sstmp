@@ -16,7 +16,6 @@ import geopandas, pandas
 import re
 import numpy
 import urllib
-import json
 
 projections = {
     # IAU2000:30101
@@ -32,7 +31,8 @@ pandas.options.mode.chained_assignment = None
 lblfilepath = r'/INDEX.LBL'
 indfilepath = r'/CUMINDEX.TAB'
 
-def nac_url_to_id(url):
+
+def nac_url_to_id(url: str) -> str:
     """
     Extracts the NAC Product Id from an ASU LROC URL `url`.
     `url` is expected to be in the form:
@@ -45,28 +45,31 @@ def nac_url_to_id(url):
     assert len(prod_id) == 1
     return prod_id[0]
 
+
 def to_numeric_or_date(series):
     try:
         return pandas.to_numeric(series, errors='ignore')
     except ValueError:
         return pandas.to_datetime(series, errors='ignore')
 
+
 def both_in_range(prop, minimum, maximum, dataframe):
     bool_series = (
-        (dataframe[prop + '_1'] > minimum) &
-        (dataframe[prop + '_1'] < maximum) &
-        (dataframe[prop + '_2'] > minimum) &
-        (dataframe[prop + '_2'] < maximum)
+            (dataframe[prop + '_1'] > minimum) &
+            (dataframe[prop + '_1'] < maximum) &
+            (dataframe[prop + '_2'] > minimum) &
+            (dataframe[prop + '_2'] < maximum)
     )
     return bool_series
 
+
 def find_NACs_under_trajectory(csv_file_path: str,
-                               buffersize=0.5,
-                               tolerance=0.05):
+                               buffersize: float = 0.5,
+                               tolerance: float = 0.05) -> 'ImageSearch':
     """
     Finds NAC images to cover all points in csv_file
 
-    :param csv_file: Path to a comma separated values file in lat lon format, with header: point, lat, lon
+    :param csv_file_path: Path to a comma separated values file in lat lon format, with header: point, lat, lon
     :param buffersize: Determines the radius of the polygon around the trajectory to search
     :param tolerance: Distance threshold for polygon simplification
     :return: An ImageSearch instance
@@ -82,6 +85,7 @@ def find_NACs_under_trajectory(csv_file_path: str,
     # Instantiate an ImageSearch using that polygon
     return ImageSearch(polygon=pointzone_wkt)
 
+
 def pair_id(pair):
     try:
         if pair.prod_id_1 < pair.prod_id_2:
@@ -90,6 +94,7 @@ def pair_id(pair):
             return pair.prod_id_2 + 'xx' + pair.prod_id_1
     except TypeError:
         return None
+
 
 class ImageSearch:
     """
@@ -111,10 +116,10 @@ class ImageSearch:
 
     @staticmethod
     def _search_from_poly(polygon: str,
-                          indfilepath=indfilepath,  #TODO need better solution than hardcoding path to local files
+                          indfilepath=indfilepath,  # TODO need better solution than hardcoding path to local files
                           lblfilepath=lblfilepath,
-                          projection='ec',
-                          verbose=False
+                          projection: str = 'ec',
+                          verbose: bool = False
                           ):
         """
         :param str projection: The projection to use. Should be 'ec' for lat / lon equidistant cylindrical, 'sp' for
@@ -149,24 +154,25 @@ class ImageSearch:
         footprints = footprints.apply(to_numeric_or_date)
 
         crs = projections[projection]
-        if projection=='ec':
+        if projection == 'ec':
             # Use IAU2000:30101
             crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
             footprints.footprint_geometry = footprints.footprint_geometry.apply(wkt.loads)
-        elif projection=='sp':
+        elif projection == 'sp':
             # Use IAU2000:30120
             crs = '+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
             footprints.footprint_geometry = footprints.footprint_sp_geometry.apply(wkt.loads)
-        elif projection=='np':
+        elif projection == 'np':
             # Use IAU2000:30118
             crs = '+proj=stere +lat_0=90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
             footprints.footprint_geometry = footprints.footprint_np_geometry.apply(wkt.loads)
-            
+
         if verbose:
             print(f'{len(footprints)} NACs were listed in the CUMINDEX.TAB file')
         footprints = geopandas.GeoDataFrame(footprints, geometry='footprint_geometry')
         footprints.crs = crs
         footprints.geometry = footprints.footprint_geometry
+
         # Upcast from shapely LineString to shapely Polygon
         def polygonize(geom):
             try:
@@ -174,6 +180,7 @@ class ImageSearch:
             except NotImplementedError:
                 print(f'Problem geometry: {geom} dropped')
                 return None
+
         footprints.footprint_geometry = footprints.footprint_geometry.apply(
             polygonize
         )
@@ -190,6 +197,7 @@ class ImageSearch:
         from matplotlib import pyplot
         self.overlaps().plot(facecolor='none', edgecolor='k')
         pyplot.show()
+
 
 class StereoPairSet:
     """
@@ -222,28 +230,31 @@ class StereoPairSet:
     Name: geometry, dtype: geometry
 
     """
-    def __init__(self, imagesearch=None, pairs=None, projection='ec'):
+
+    def __init__(self, imagesearch: ImageSearch = None, pairs=None, projection: str = 'ec'):
         # If StereoPairSet is instantiated with another StereoPairSet, copy the pairs
         if pairs is not None:
             self.pairs = pairs
         elif imagesearch is not None:
             gdf = imagesearch.results.dropna()
-            gdf['prod_id'] = gdf.index  # Store index (product id) in column so that it's preserved in spatial join operation
+            gdf[
+                'prod_id'] = gdf.index  # Store index (product id) in column so that it's preserved in spatial join operation
             self.pairs = geopandas.overlay(gdf, gdf, how='union', keep_geom_type=True)
             # If we're in lat lon, then need to convert to meters before calculating area
-            if projection=='ec':
+            if projection == 'ec':
                 pairs_eqc = self.pairs.to_crs(
                     "+proj=eqc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs"
                 )
-            self.pairs['area_m2'] = pairs_eqc.area    # Store area as column before sorting (could use key fn instead...)
+            self.pairs['area_m2'] = pairs_eqc.area  # Store area as column before sorting (could use key fn instead...)
             self.pairs.sort_values('area_m2', ascending=False, inplace=True)
-            self.filter_unique(inplace=True)  # TODO pair_id is created inside this method call -- maybe not the best place for that
+            self.filter_unique(
+                inplace=True)  # TODO pair_id is created inside this method call -- maybe not the best place for that
             self.pairs.set_index('pair_id', inplace=True)
             self.bb_covering_pairs = None
         else:
             raise TypeError("Need either imagesearch or pairs argument to instantiate StereoPairSet")
 
-    def filter_new_pairs(self, since, inplace=True):
+    def filter_new_pairs(self, since, inplace: bool = True) -> 'StereoPairSet':
         """
         Finds stereo pairs that have recently become available due to addition of new data.
         :param since: Any date / time format accepted as a pandas indexer
@@ -255,7 +266,7 @@ class StereoPairSet:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_date_range(self, startime, endtime, inplace=True):
+    def filter_date_range(self, startime, endtime, inplace: bool = True) -> 'StereoPairSet':
         """
         Finds stereo pairs where both images were acquired after startime and before endtime.
         :param startime: Any date / time representation accepted by Pandas for slicing
@@ -268,19 +279,22 @@ class StereoPairSet:
             filtered_pairs = self.pairs[filtered_pairs]
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_sufficient_convergence(self, min_convergence=2, inplace=True):
+    def filter_sufficient_convergence(self, min_convergence: float = 2, inplace: bool = True) -> 'StereoPairSet':
         """
         Removes stereo pairs which have an emission angle difference of less than min_convergence degrees.
         :param inplace: Replace .pairs of this StereoPairSet instance with the filtered version
         :param min_convergence: Convergence angle beneath which to remove pair
         :return: StereoPairSet with pairs that have insufficient convergence removed.
         """
-        filtered_pairs = self.pairs[numpy.abs(self.pairs.emission_angle_1 - self.pairs.emission_angle_2) > min_convergence]
+        filtered_pairs = self.pairs[
+            numpy.abs(self.pairs.emission_angle_1 - self.pairs.emission_angle_2) > min_convergence]
         if inplace:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_sun_geometry(self, max_sun_azimuth_ground_difference=20, max_incidence_angle_difference=20, inplace=True):
+    def filter_sun_geometry(self, max_sun_azimuth_ground_difference: float = 20,
+                            max_incidence_angle_difference: float = 20,
+                            inplace: bool = True) -> 'StereoPairSet':
         """
         Removes stereo pairs which have incompatible sun geometry.
         :param max_sun_azimuth_ground_difference: Maximum sun azimuth difference, in degrees.
@@ -288,7 +302,8 @@ class StereoPairSet:
         :param inplace: Replace .pairs of this StereoPairSet instance with the filtered version
         :return: StereoPairSet of pairs with bad sun geometry pairs removed.
         """
-        big_incidence_diff = numpy.abs(self.pairs.incidence_angle_1 - self.pairs.incidence_angle_2) < max_incidence_angle_difference
+        big_incidence_diff = numpy.abs(
+            self.pairs.incidence_angle_1 - self.pairs.incidence_angle_2) < max_incidence_angle_difference
         sub_solar_ground_az_1 = self.pairs.north_azimuth_1 - self.pairs.sub_solar_azimuth_1
         sub_solar_ground_az_2 = self.pairs.north_azimuth_2 - self.pairs.sub_solar_azimuth_2
         sub_solar_ground_az_diff = numpy.abs(sub_solar_ground_az_1 - sub_solar_ground_az_2)
@@ -298,7 +313,7 @@ class StereoPairSet:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_small_overlaps(self, min_area=50000000, inplace=True):
+    def filter_small_overlaps(self, min_area: float = 50000000, inplace: bool = True) -> 'StereoPairSet':
         """
         Removes stereo pairs with insufficient overlap area.
         :param min_area: Minimum overlap area, in square meters.
@@ -310,7 +325,7 @@ class StereoPairSet:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_unique(self, inplace=True):
+    def filter_unique(self, inplace: bool = True) -> 'StereoPairSet':
         """
         Remove self-pairs (e.g. M1234LxxM1234L)
         :param inplace: Replace .pairs of this StereoPairSet instance with the filtered version
@@ -325,7 +340,7 @@ class StereoPairSet:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def filter_incidence(self, inplace=True):
+    def filter_incidence(self, inplace: bool = True) -> 'StereoPairSet':
         """
         Remove pair unless both images have 40 < incidence angle < 65
         :param inplace: Replace .pairs of this StereoPairSet instance with the filtered version
@@ -339,7 +354,7 @@ class StereoPairSet:
             self.pairs = filtered_pairs
         return StereoPairSet(pairs=filtered_pairs)
 
-    def stereo_quality(self):
+    def stereo_quality(self) -> pandas.DataFrame:
         """
         Calculates quality metrics for stereo pairs based on:
             Becker et al. 2015. "Criteria for Automated Identification of Stereo Image Pairs."
@@ -363,14 +378,14 @@ class StereoPairSet:
         px2 = - numpy.tan(pairs.emission_angle_2) * numpy.cos(pairs.north_azimuth_2)  # parallax x, image 2
         py2 = numpy.tan(pairs.emission_angle_2) * numpy.sin(pairs.north_azimuth_2)  # parallax y, image 2
         metrics['Parallax/height ratio'] = ((px1 - px2) ** 2 + (
-                    py1 - py2) ** 2) ** 0.5  # related to convergence angle ("stereo strength")
+                py1 - py2) ** 2) ** 0.5  # related to convergence angle ("stereo strength")
 
         shx1 = - numpy.tan(pairs.incidence_angle_1) * numpy.cos(pairs.sub_solar_azimuth_1)
         shy1 = numpy.tan(pairs.incidence_angle_1) * numpy.sin(pairs.sub_solar_azimuth_1)
         shx2 = - numpy.tan(pairs.incidence_angle_2) * numpy.cos(pairs.sub_solar_azimuth_2)
         shy2 = numpy.tan(pairs.incidence_angle_2) * numpy.sin(pairs.sub_solar_azimuth_2)
         metrics['Shadow tip distance'] = ((shx1 - shx2) ** 2 + (
-                    shy1 - shy2) ** 2) ** 0.5  # Shadow-tip distance (measure of illumination compatibility)
+                shy1 - shy2) ** 2) ** 0.5  # Shadow-tip distance (measure of illumination compatibility)
 
         limits = {
             'Resolution ratio': (0, 4),  # Paper recommends
@@ -388,13 +403,14 @@ class StereoPairSet:
 
         return metrics
 
-    def find_covering_set_poly(self, polygon: str, plot=False):
+    def find_covering_set_poly(self, polygon: str, plot: bool = False):
         """
         Convenience wrapper for using find_covering_set with a search polygon which computes the bounding box for you
 
+        :param plot: Toggle pair plot
         :param polygon: A polygon in which find_covering_set will search
         """
-        #Convert from WKT string to shapely
+        # Convert from WKT string to shapely
         polygon = wkt.loads(polygon)
         west, south, east, north = polygon.bounds
         self.find_covering_set(west=west,
@@ -407,12 +423,12 @@ class StereoPairSet:
                                grid_n_step=2,
                                plot=plot)
 
-    def plot(self):
+    def plot(self) -> None:
         from matplotlib import pyplot
         self.pairs.plot(edgecolor='grey')
         pyplot.show()
 
-    def pairs_json(self):
+    def pairs_json(self) -> str:
         pair_ids = self.pairs.index.drop_duplicates()
         pairs_dict = [
             {'left': f'{pair_id.split("xx")[0]}',
@@ -421,7 +437,8 @@ class StereoPairSet:
         ]
         return json.dumps(list(pairs_dict))
 
-def trajectory(trajectory_csv, plot=False, find_covering=False, verbose=False):
+
+def trajectory(trajectory_csv: str, plot: bool = False, find_covering: bool = False, verbose=False) -> 'StereoPairSet':
     """
     Find stereo pairs beneath a trajectory of points
 
@@ -446,7 +463,10 @@ def trajectory(trajectory_csv, plot=False, find_covering=False, verbose=False):
     print(filtered_pairset.pairs_json())
     return filtered_pairset
 
-def bounding_box(*, west, east, south, north, plot=False, find_covering=True, return_pairset=False, verbose=False):
+
+def bounding_box(*, west: float, east: float, south: float, north: float, plot: bool = False,
+                 find_covering: bool = True,
+                 return_pairset: bool = False, verbose=False) -> 'StereoPairSet':
     """
     Find stereo pairs that fill a given bounding box
     
@@ -476,6 +496,8 @@ def bounding_box(*, west, east, south, north, plot=False, find_covering=True, re
     if return_pairset:
         return filtered_pairset
 
+
 if __name__ == '__main__':
     import clize, json
+
     clize.run(bounding_box, alt=trajectory)
