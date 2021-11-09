@@ -10,7 +10,7 @@ Aaron Curtis
 
 
 from nacpl import geom_helpers, load_nac_metadata
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import Polygon, LineString, MultiPolygon
 from shapely import wkt
 import geopandas, pandas
 import re
@@ -139,53 +139,64 @@ class ImageSearch:
         resp = json.loads(resp.read())
         if verbose:
             print(f'Looking in CUMINDEX.TAB for sun & spacecraft geometry info')
-        metadata = load_nac_metadata.load_nac_index(indfilepath=indfilepath, lblfilepath=lblfilepath)
-        metadata.product_id = metadata.product_id.apply(str.strip)
-        metadata.set_index('product_id', inplace=True)
         footprints = pandas.DataFrame(resp['ODEResults']['Products']['Product'])
         # lowercase all column names for ease of joining from different APIs
         footprints.columns = [col.lower() for col in footprints.columns]
         footprints.set_index('pdsid', inplace=True)
-        footprints = footprints.join(metadata, how='inner', lsuffix='_ode', rsuffix='')
-        # For the columns that were in common between CUMINDEX.TAB and ODE REST API, remove the ODE ones and keep the ones form CUMINDEX.TAB
-        footprints = footprints.loc[:,
-                     [col for col in footprints.columns if not col.endswith('_ode')]
-                     ]
-        footprints = footprints.apply(to_numeric_or_date)
 
-        crs = projections[projection]
-        if projection == 'ec':
-            # Use IAU2000:30101
-            crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
-            footprints.footprint_geometry = footprints.footprint_geometry.apply(wkt.loads)
-        elif projection == 'sp':
-            # Use IAU2000:30120
-            crs = '+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
-            footprints.footprint_geometry = footprints.footprint_sp_geometry.apply(wkt.loads)
-        elif projection == 'np':
-            # Use IAU2000:30118
-            crs = '+proj=stere +lat_0=90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
-            footprints.footprint_geometry = footprints.footprint_np_geometry.apply(wkt.loads)
+        filtered = []
+        chunks_metadata = load_nac_metadata.load_nac_index(indfilepath=indfilepath, lblfilepath=lblfilepath)
+        for chunk_metadata in chunks_metadata:  # iterate over chunks instead of loading all CSV into RAM
+            chunk_metadata.product_id = chunk_metadata.product_id.apply(str.strip)
+            chunk_metadata.set_index('product_id', inplace=True)
+            chunk_footprints = footprints.join(chunk_metadata, how='inner', lsuffix='_ode', rsuffix='')
 
-        if verbose:
-            print(f'{len(footprints)} NACs were listed in the CUMINDEX.TAB file')
-        footprints = geopandas.GeoDataFrame(footprints, geometry='footprint_geometry')
-        footprints.crs = crs
-        footprints.geometry = footprints.footprint_geometry
+            # For the columns that were in common between CUMINDEX.TAB and ODE REST API
+            # remove the ODE ones and keep the ones from CUMINDEX.TAB
+            chunk_footprints = chunk_footprints.loc[:,
+                         [col for col in chunk_footprints.columns if not col.endswith('_ode')]
+                         ]
+            chunk_footprints = chunk_footprints.apply(to_numeric_or_date)
 
-        # Upcast from shapely LineString to shapely Polygon
-        def polygonize(geom):
-            try:
-                return Polygon(geom)
-            except NotImplementedError:
-                print(f'Problem geometry: {geom} dropped')
-                return None
+            crs = projections[projection]
+            if projection == 'ec':
+                # Use IAU2000:30101
+                crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
+                chunk_footprints.footprint_geometry = chunk_footprints.footprint_geometry.apply(wkt.loads)
+            elif projection == 'sp':
+                # Use IAU2000:30120
+                crs = '+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
+                chunk_footprints.footprint_geometry = chunk_footprints.footprint_sp_geometry.apply(wkt.loads)
+            elif projection == 'np':
+                # Use IAU2000:30118
+                crs = '+proj=stere +lat_0=90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=1737400 +b=1737400 +units=m +no_defs'
+                chunk_footprints.footprint_geometry = chunk_footprints.footprint_np_geometry.apply(wkt.loads)
 
-        footprints.footprint_geometry = footprints.footprint_geometry.apply(
-            polygonize
-        )
-        footprints.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
-        return footprints.dropna()
+            chunk_footprints = geopandas.GeoDataFrame(chunk_footprints, geometry='footprint_geometry')
+            chunk_footprints.crs = crs
+            chunk_footprints.geometry = chunk_footprints.footprint_geometry
+
+            # Upcast from shapely LineString to shapely Polygon
+            def polygonize(geom):
+                if geom.geom_type == 'GeometryCollection':
+                    try:
+                        return MultiPolygon(geom)
+                    except TypeError:
+                        print(f'Problem geometry: {geom} dropped')
+                        return None
+                else:
+                    try:
+                        return Polygon(geom)
+                    except NotImplementedError:
+                        print(f'Problem geometry: {geom} dropped')
+                        return None
+
+            chunk_footprints.footprint_geometry = chunk_footprints.footprint_geometry.apply(
+                polygonize
+            )
+            chunk_footprints.crs = '+proj=longlat +a=1737400 +b=1737400 +no_defs'
+            filtered.append(chunk_footprints)
+        return pandas.concat(filtered).dropna()
 
     def date_range(self):
         return self.results.start_time.min(), self.results.stop_time.max()
@@ -483,7 +494,14 @@ def bounding_box(*, west: float, east: float, south: float, north: float, plot: 
     search_poly_shapely = geom_helpers.corners_to_quadrilateral(west, east, south, north, lonC0=True)
     imgs = ImageSearch(polygon=wkt.dumps(search_poly_shapely))
     pairset = StereoPairSet(imgs)
-    filtered_pairset = pairset.filter_sun_geometry().filter_small_overlaps()
+    if verbose:
+        print(f"found {len(pairset.pairs.index)} pairs.")
+    filtered_pairset = pairset.filter_sun_geometry()
+    if verbose:
+        print(f"found {len(filtered_pairset.pairs.index)} pairs after filtering out incompatible sun geometry.")
+    filtered_pairset = filtered_pairset.filter_small_overlaps()
+    if verbose:
+        print(f"found {len(filtered_pairset.pairs.index)} pairs after filtering out insufficient overlaps.")
     if find_covering:
         search_poly_shapely = wkt.loads(imgs.search_poly)
         filtered_pairset.pairs, stats = geom_helpers.covering_set_search(
