@@ -11,7 +11,7 @@ lblfilepath = r'/INDEX.LBL'
 indfilepath = r'/CUMINDEX.TAB'
 footprintfileglob = r'/moon_lro_lroc_edrnac_ga/*.shp'
 
-CHUNK_SIZE = 5000  # lines
+CHUNK_SIZE = 100000  # lines
 
 
 def load_nac_index(lblfilepath=lblfilepath, indfilepath=indfilepath, chunksize=CHUNK_SIZE) -> typing.Union[
