@@ -630,9 +630,6 @@ class StereoPairSet:
         ]
         return json.dumps(list(pairs_dict))
 
-    def pairs_ids_list(self) -> list[str]:
-        return [p_id for p_id in self.pairs.index.drop_duplicates()]
-
 
 def trajectory(
     trajectory_csv: str, plot: bool = False, find_covering: bool = False, verbose=False
@@ -670,6 +667,7 @@ def bounding_box(
     north: float,
     indfilepath,
     lblfilepath,
+    json_output=None,
     plot: bool = False,
     find_covering: bool = True,
     return_pairset: bool = False,
@@ -713,7 +711,7 @@ def bounding_box(
         )
         filtered_pairs.append(filtered_chunk_pairs)
         filtered_pairs_count += len(filtered_chunk_pairs)
-        if filtered_pairs_count > max_pairs:
+        if filtered_pairs_count > max_pairs and verbose:
             print(f"found {filtered_pairs_count} pairs > --max-pairs={max_pairs}")
             break
 
@@ -737,8 +735,12 @@ def bounding_box(
             verbose=verbose,
             miss_limit=miss_limit,
         )
-        print(f"coverage stats: {stats}")
+        if verbose:
+            print(f"coverage stats: {stats}")
     print(filtered_pairset.pairs_json())
+    if json_output is not None:
+        with open(json_output, "w+") as json_file:
+            json_file.write(filtered_pairset.pairs_json())
     if return_pairset:
         return filtered_pairset
 
