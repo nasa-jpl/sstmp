@@ -54,7 +54,8 @@ def download_NAC_image(product_id_or_json: str, download_dir: str):
     else:  # product id
         product_id_list = [product_id_or_json]
 
-    args = [(product_id, download_dir) for product_id in product_id_list]
+    # iterate over set(product_id_list) so that products are only downloaded once
+    args = [(product_id, download_dir) for product_id in set(product_id_list)]
     with Pool(8) as p:
         p.map(download, args)
 
