@@ -26,10 +26,12 @@ def get_nac_url(product_id: str):
     :param product_id: PDS id of a NAC, for example M1134059748RE
     :return: URL
     """
-    query_url = f'https://oderest.rsl.wustl.edu/live2/?query=product&PDSID={product_id}&results=f&output=json'
+    query_url = f"https://oderest.rsl.wustl.edu/live2/?query=product&PDSID={product_id}&results=f&output=json"
     resp = request.urlopen(url=query_url)
     resp = json.loads(resp.read())
-    nacurl = resp['ODEResults']['Products']['Product']['Product_files']['Product_file'][0]['URL']
+    nacurl = resp["ODEResults"]["Products"]["Product"]["Product_files"]["Product_file"][
+        0
+    ]["URL"]
     print(nacurl)
     return nacurl
 
@@ -57,5 +59,5 @@ def download_NAC_image(product_id_or_json: str, download_dir: str):
         p.map(download, args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(download_NAC_image)
