@@ -16,6 +16,7 @@ import geopandas, pandas
 import re
 import numpy
 import urllib
+import json
 
 projections = {
     # IAU2000:30101
