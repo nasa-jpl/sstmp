@@ -119,7 +119,7 @@ Group = CubeCustomization
   Overwrite  = Allow
   Format     = Attached
   History    = On
-  MaximumSize = 12 
+  MaximumSize = 512
 EndGroup
 
 ########################################################
