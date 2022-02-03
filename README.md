@@ -28,7 +28,7 @@ Development goals of the project are:
 ## Requirements
  - Any Kubernetes cluster. This can be minikube running on a single machine / node, a cloud service such as Amazon EKS, or your own custom cluster. [k3s](https://github.com/rancher/k3s) is recommended as a quick way to set up Kubernetes.
  - A [Skaffold](https://skaffold.dev/docs/install/) installation that talks to your Kubernetes cluster
- - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH. Unfortunately this needs to be kustomize 3, because of [this regression](https://github.com/kubernetes-sigs/kustomize/issues/3675) in kustomize 4.
+ - [Kustomize installed](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/INSTALL.md) in your PATH. Unfortunately this needs to be [kustomize 3.9.3](https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv3.9.3) or an earlier version of kustomize 3, because of [this regression](https://github.com/kubernetes-sigs/kustomize/issues/3675) in kustomize 4.
  - A container image registry to which you have write access. You can set up a private registry using `docker run -d -p 5000:5000 --restart=always --name sstmp-reg registry:2` and then specify it using `--default-repo=localhost:5000` when the installation step using `skaffold` below
 
 Internally, SSTMP uses a slew of free and open source programs, including:
