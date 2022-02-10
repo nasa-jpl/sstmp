@@ -1,10 +1,12 @@
-import numpy as np
-import shapely
-from shapely.geometry import MultiPoint, Polygon, Point
-from shapely.ops import cascaded_union
-from matplotlib import pyplot
-import geopandas
 from typing import Optional
+
+import geopandas
+import shapely
+from shapely.geometry import Polygon, Point
+from shapely.ops import cascaded_union
+
+from nacpl.random_point import random_points_in_polygon
+
 
 def corners_to_quadrilateral(west, east, south, north, lonC0=False):
     """
@@ -76,12 +78,28 @@ def covering_set_search(full_poly_set, search_poly, success_fraction=0.99,
     miss_count = 0
     selected_polys = geopandas.GeoDataFrame()
     remaining_uncovered_poly = search_poly #TODO sort by rank_by
-    selected_poly = None
     search_points = geopandas.GeoDataFrame(columns=['hit', 'geometry'])
     search_poly_gdf = geopandas.GeoDataFrame({'geometry': [search_poly.boundary]})
+
+    if plot:
+        from matplotlib import pyplot
+        # Plot the search polygon
+        plotax = search_poly_gdf.boundary.plot()
+
+        # Plot the selected polygons
+        full_poly_set['pair_id'] = full_poly_set.index  # b/c geopandas doesn't accept index in column arg to plot()
+        full_poly_set.head(1000).plot(
+            column='pair_id',
+            legend=True,
+            legend_kwds={'loc': 'center left', 'bbox_to_anchor': (1, 0.5)},
+            ax=plotax
+        )
+        pyplot.savefig(fr'cover_search_all')
+        pyplot.close('all')
+
     while coverage_fraction < success_fraction and miss_count < miss_limit:
         # Select a point at a inside search_poly
-        search_point = remaining_uncovered_poly.representative_point()
+        search_point = random_points_in_polygon(remaining_uncovered_poly, 1)[0]
 
         # Maybe move the point a bit
 
@@ -123,7 +141,7 @@ def covering_set_search(full_poly_set, search_poly, success_fraction=0.99,
                 legend_kwds={'loc': 'center left', 'bbox_to_anchor': (1, 0.5)},
                 ax=plotax
             )
-            pyplot.savefig(fr'C:\tmp\coversearch\{len(search_points)}')
+            pyplot.savefig(fr'cover_search_{len(search_points):03d}')
             pyplot.close('all')
             # Plot the search points
             # TODO
